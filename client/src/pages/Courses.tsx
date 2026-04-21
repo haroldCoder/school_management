@@ -29,8 +29,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Plus, Edit2, Trash2, Loader2 } from "lucide-react";
+import { Plus, Edit2, Trash2, Loader2, Eye } from "lucide-react";
 import { toast } from "sonner";
+import { useLocation } from "wouter";
 
 interface CourseFormData {
   name: string;
@@ -47,6 +48,7 @@ interface CourseFormData {
 export default function Courses() {
   const { t } = useI18n();
   const { user } = useAuth();
+  const [, setLocation] = useLocation();
   const [open, setOpen] = useState(false);
   const [editingId, setEditingId] = useState<number | null>(null);
   const [formData, setFormData] = useState<CourseFormData>({
@@ -359,31 +361,42 @@ export default function Courses() {
                               : t("common.archived")}
                         </span>
                       </TableCell>
-                      {isAdmin && (
-                        <TableCell>
-                          <div className="flex gap-2">
-                            <Button
-                              size="sm"
-                              variant="ghost"
-                              onClick={() => handleEdit(course)}
-                            >
-                              <Edit2 className="w-4 h-4" />
-                            </Button>
-                            <Button
-                              size="sm"
-                              variant="ghost"
-                              onClick={() => {
-                                if (confirm(t("common.confirmDelete"))) {
-                                  deleteMutation.mutate({ id: course.id });
-                                }
-                              }}
-                              disabled={deleteMutation.isPending}
-                            >
-                              <Trash2 className="w-4 h-4" />
-                            </Button>
-                          </div>
-                        </TableCell>
-                      )}
+                      <TableCell>
+                        <div className="flex gap-2">
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => setLocation(`/course-detail?id=${course.id}`)}
+                            className="gap-2"
+                          >
+                            <Eye className="w-4 h-4" />
+                            Ver
+                          </Button>
+                          {isAdmin && (
+                            <>
+                              <Button
+                                size="sm"
+                                variant="ghost"
+                                onClick={() => handleEdit(course)}
+                              >
+                                <Edit2 className="w-4 h-4" />
+                              </Button>
+                              <Button
+                                size="sm"
+                                variant="ghost"
+                                onClick={() => {
+                                  if (confirm(t("common.confirmDelete"))) {
+                                    deleteMutation.mutate({ id: course.id });
+                                  }
+                                }}
+                                disabled={deleteMutation.isPending}
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </Button>
+                            </>
+                          )}
+                        </div>
+                      </TableCell>
                     </TableRow>
                   ))}
                 </TableBody>

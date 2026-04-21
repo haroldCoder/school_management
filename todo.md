@@ -66,3 +66,16 @@
 - [x] Implement teacher/admin-only procedures for material and question management
 - [x] Add student identity validation for answer submissions
 - [x] Create tests for materials and questions procedures
+
+
+## Phase 7: Redesign Course Interaction
+- [ ] Delete separate Materials and Questions pages
+- [ ] Delete Answers page
+- [ ] Create CourseDetail page with tabs for Materials, Questions, Students, Grades
+- [ ] Implement Materials tab within CourseDetail (upload, view, delete)
+- [ ] Implement Questions tab within CourseDetail (create, view, answer, edit)
+- [ ] Implement Students tab within CourseDetail (view enrolled students)
+- [ ] Implement Grades tab within CourseDetail (view/enter grades for course students)
+- [ ] Update Courses page to navigate to CourseDetail on click
+- [ ] Update navigation to remove Materials and Questions menu items
+- [ ] Test all interactions within course detail view
