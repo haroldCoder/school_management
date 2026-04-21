@@ -4,13 +4,51 @@ import NotFound from "@/pages/NotFound";
 import { Route, Switch } from "wouter";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
-import Home from "./pages/Home";
+import { useAuth } from "@/_core/hooks/useAuth";
+import { SchoolDashboardLayout } from "@/components/SchoolDashboardLayout";
+import Dashboard from "@/pages/Dashboard";
+import Students from "@/pages/Students";
+import Teachers from "@/pages/Teachers";
+import Courses from "@/pages/Courses";
+import Enrollments from "@/pages/Enrollments";
+import Grades from "@/pages/Grades";
+import Reports from "@/pages/Reports";
+import Home from "@/pages/Home";
+import { Loader2 } from "lucide-react";
+
+function ProtectedRoute({ component: Component }: { component: React.ComponentType }) {
+  const { isAuthenticated, loading } = useAuth();
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <Loader2 className="w-8 h-8 animate-spin text-muted-foreground" />
+      </div>
+    );
+  }
+
+  if (!isAuthenticated) {
+    return <Home />;
+  }
+
+  return (
+    <SchoolDashboardLayout>
+      <Component />
+    </SchoolDashboardLayout>
+  );
+}
 
 function Router() {
-  // make sure to consider if you need authentication for certain routes
   return (
     <Switch>
       <Route path={"/"} component={Home} />
+      <Route path={"/dashboard"} component={() => <ProtectedRoute component={Dashboard} />} />
+      <Route path={"/students"} component={() => <ProtectedRoute component={Students} />} />
+      <Route path={"/teachers"} component={() => <ProtectedRoute component={Teachers} />} />
+      <Route path={"/courses"} component={() => <ProtectedRoute component={Courses} />} />
+      <Route path={"/enrollments"} component={() => <ProtectedRoute component={Enrollments} />} />
+      <Route path={"/grades"} component={() => <ProtectedRoute component={Grades} />} />
+      <Route path={"/reports"} component={() => <ProtectedRoute component={Reports} />} />
       <Route path={"/404"} component={NotFound} />
       {/* Final fallback route */}
       <Route component={NotFound} />
@@ -18,18 +56,10 @@ function Router() {
   );
 }
 
-// NOTE: About Theme
-// - First choose a default theme according to your design style (dark or light bg), than change color palette in index.css
-//   to keep consistent foreground/background color across components
-// - If you want to make theme switchable, pass `switchable` ThemeProvider and use `useTheme` hook
-
 function App() {
   return (
     <ErrorBoundary>
-      <ThemeProvider
-        defaultTheme="light"
-        // switchable
-      >
+      <ThemeProvider defaultTheme="light">
         <TooltipProvider>
           <Toaster />
           <Router />
