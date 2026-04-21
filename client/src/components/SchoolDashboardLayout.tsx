@@ -21,6 +21,8 @@ import {
   X,
   LogOut,
   Settings,
+  FileText,
+  HelpCircle,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -43,6 +45,8 @@ export function SchoolDashboardLayout({ children }: SchoolDashboardLayoutProps) 
     { label: t("navigation.enrollments"), path: "/enrollments", icon: ClipboardList },
     { label: t("navigation.grades"), path: "/grades", icon: BarChart3 },
     { label: t("navigation.reports"), path: "/reports", icon: BarChart3 },
+    { label: "Materiales", path: "/materials", icon: FileText },
+    { label: "Preguntas", path: "/questions", icon: HelpCircle },
   ];
 
   const handleNavigation = (path: string) => {

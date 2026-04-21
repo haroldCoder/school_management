@@ -18,6 +18,15 @@ import {
   grades,
   InsertGrade,
   Grade,
+  materials,
+  InsertMaterial,
+  Material,
+  questions,
+  InsertQuestion,
+  Question,
+  studentAnswers,
+  InsertStudentAnswer,
+  StudentAnswer,
 } from "../drizzle/schema";
 import { ENV } from "./_core/env";
 
@@ -430,4 +439,160 @@ export async function deleteGrade(id: number): Promise<boolean> {
 
   const result = await db.delete(grades).where(eq(grades.id, id));
   return result[0].affectedRows > 0;
+}
+
+
+// ============ MATERIALS ============
+
+export async function createMaterial(data: InsertMaterial): Promise<Material> {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  const result = await db.insert(materials).values(data);
+  const id = result[0].insertId;
+  const material = await db.select().from(materials).where(eq(materials.id, id as number)).limit(1);
+  return material[0]!;
+}
+
+export async function getMaterials(courseId: number, limit = 50, offset = 0) {
+  const db = await getDb();
+  if (!db) return [];
+
+  return await db
+    .select()
+    .from(materials)
+    .where(and(eq(materials.courseId, courseId), eq(materials.status, "active")))
+    .orderBy(desc(materials.createdAt))
+    .limit(limit)
+    .offset(offset);
+}
+
+export async function getMaterialById(id: number): Promise<Material | undefined> {
+  const db = await getDb();
+  if (!db) return undefined;
+
+  const result = await db.select().from(materials).where(eq(materials.id, id)).limit(1);
+  return result.length > 0 ? result[0] : undefined;
+}
+
+export async function updateMaterial(id: number, data: Partial<InsertMaterial>): Promise<Material | undefined> {
+  const db = await getDb();
+  if (!db) return undefined;
+
+  await db.update(materials).set(data).where(eq(materials.id, id));
+  return getMaterialById(id);
+}
+
+export async function deleteMaterial(id: number): Promise<boolean> {
+  const db = await getDb();
+  if (!db) return false;
+
+  const result = await db.delete(materials).where(eq(materials.id, id));
+  return result[0].affectedRows > 0;
+}
+
+// ============ QUESTIONS ============
+
+export async function createQuestion(data: InsertQuestion): Promise<Question> {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  const result = await db.insert(questions).values(data);
+  const id = result[0].insertId;
+  const question = await db.select().from(questions).where(eq(questions.id, id as number)).limit(1);
+  return question[0]!;
+}
+
+export async function getQuestions(courseId: number, limit = 50, offset = 0) {
+  const db = await getDb();
+  if (!db) return [];
+
+  return await db
+    .select()
+    .from(questions)
+    .where(and(eq(questions.courseId, courseId), eq(questions.status, "active")))
+    .orderBy(desc(questions.createdAt))
+    .limit(limit)
+    .offset(offset);
+}
+
+export async function getQuestionById(id: number): Promise<Question | undefined> {
+  const db = await getDb();
+  if (!db) return undefined;
+
+  const result = await db.select().from(questions).where(eq(questions.id, id)).limit(1);
+  return result.length > 0 ? result[0] : undefined;
+}
+
+export async function updateQuestion(id: number, data: Partial<InsertQuestion>): Promise<Question | undefined> {
+  const db = await getDb();
+  if (!db) return undefined;
+
+  await db.update(questions).set(data).where(eq(questions.id, id));
+  return getQuestionById(id);
+}
+
+export async function deleteQuestion(id: number): Promise<boolean> {
+  const db = await getDb();
+  if (!db) return false;
+
+  const result = await db.delete(questions).where(eq(questions.id, id));
+  return result[0].affectedRows > 0;
+}
+
+// ============ STUDENT ANSWERS ============
+
+export async function submitAnswer(data: InsertStudentAnswer): Promise<StudentAnswer> {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  const result = await db.insert(studentAnswers).values(data);
+  const id = result[0].insertId;
+  const answer = await db.select().from(studentAnswers).where(eq(studentAnswers.id, id as number)).limit(1);
+  return answer[0]!;
+}
+
+export async function getStudentAnswers(studentId: number, courseId: number, limit = 50, offset = 0) {
+  const db = await getDb();
+  if (!db) return [];
+
+  return await db
+    .select()
+    .from(studentAnswers)
+    .where(and(eq(studentAnswers.studentId, studentId), eq(studentAnswers.courseId, courseId)))
+    .orderBy(desc(studentAnswers.submittedAt))
+    .limit(limit)
+    .offset(offset);
+}
+
+export async function getStudentAnswer(studentId: number, questionId: number): Promise<StudentAnswer | undefined> {
+  const db = await getDb();
+  if (!db) return undefined;
+
+  const result = await db
+    .select()
+    .from(studentAnswers)
+    .where(and(eq(studentAnswers.studentId, studentId), eq(studentAnswers.questionId, questionId)))
+    .limit(1);
+  return result.length > 0 ? result[0] : undefined;
+}
+
+export async function updateStudentAnswer(id: number, data: Partial<InsertStudentAnswer>): Promise<StudentAnswer | undefined> {
+  const db = await getDb();
+  if (!db) return undefined;
+
+  await db.update(studentAnswers).set(data).where(eq(studentAnswers.id, id));
+  const result = await db.select().from(studentAnswers).where(eq(studentAnswers.id, id)).limit(1);
+  return result.length > 0 ? result[0] : undefined;
+}
+
+export async function getQuestionAnswers(questionId: number) {
+  const db = await getDb();
+  if (!db) return [];
+
+  return await db
+    .select()
+    .from(studentAnswers)
+    .where(eq(studentAnswers.questionId, questionId))
+    .orderBy(desc(studentAnswers.submittedAt));
 }

@@ -39,6 +39,21 @@ import {
   getGradesByCourse,
   updateGrade,
   deleteGrade,
+  createMaterial,
+  getMaterials,
+  getMaterialById,
+  updateMaterial,
+  deleteMaterial,
+  createQuestion,
+  getQuestions,
+  getQuestionById,
+  updateQuestion,
+  deleteQuestion,
+  submitAnswer,
+  getStudentAnswers,
+  getStudentAnswer,
+  updateStudentAnswer,
+  getQuestionAnswers,
 } from "./db";
 
 // Admin-only procedure
@@ -369,6 +384,155 @@ export const appRouter = router({
       const success = await deleteGrade(input.id);
       return { success };
     }),
+  }),
+
+  materials: router({
+    list: protectedProcedure
+      .input(z.object({ courseId: z.number(), limit: z.number().default(50), offset: z.number().default(0) }))
+      .query(async ({ input }) => {
+        return await getMaterials(input.courseId, input.limit, input.offset);
+      }),
+
+    getById: protectedProcedure.input(z.object({ id: z.number() })).query(async ({ input }) => {
+      return await getMaterialById(input.id);
+    }),
+
+    create: protectedProcedure
+      .input(
+        z.object({
+          courseId: z.number(),
+          title: z.string().min(1),
+          description: z.string().optional(),
+          fileUrl: z.string(),
+          fileKey: z.string(),
+          fileType: z.string(),
+          fileSize: z.number().optional(),
+        })
+      )
+      .mutation(async ({ input, ctx }) => {
+        return await createMaterial({
+          ...input,
+          uploadedBy: ctx.user?.id,
+        });
+      }),
+
+    update: protectedProcedure
+      .input(
+        z.object({
+          id: z.number(),
+          title: z.string().optional(),
+          description: z.string().optional(),
+          status: z.enum(["active", "archived"]).optional(),
+        })
+      )
+      .mutation(async ({ input }) => {
+        const { id, ...data } = input;
+        return await updateMaterial(id, data);
+      }),
+
+    delete: protectedProcedure.input(z.object({ id: z.number() })).mutation(async ({ input }) => {
+      const success = await deleteMaterial(input.id);
+      return { success };
+    }),
+  }),
+
+  questions: router({
+    list: protectedProcedure
+      .input(z.object({ courseId: z.number(), limit: z.number().default(50), offset: z.number().default(0) }))
+      .query(async ({ input }) => {
+        return await getQuestions(input.courseId, input.limit, input.offset);
+      }),
+
+    getById: protectedProcedure.input(z.object({ id: z.number() })).query(async ({ input }) => {
+      return await getQuestionById(input.id);
+    }),
+
+    create: protectedProcedure
+      .input(
+        z.object({
+          courseId: z.number(),
+          title: z.string().min(1),
+          description: z.string().optional(),
+          questionType: z.enum(["multiple_choice", "short_answer", "essay", "true_false"]),
+          content: z.string().min(1),
+          correctAnswer: z.string().optional(),
+          points: z.number().default(1),
+        })
+      )
+      .mutation(async ({ input, ctx }) => {
+        return await createQuestion({
+          ...input,
+          createdBy: ctx.user?.id,
+        });
+      }),
+
+    update: protectedProcedure
+      .input(
+        z.object({
+          id: z.number(),
+          title: z.string().optional(),
+          description: z.string().optional(),
+          content: z.string().optional(),
+          correctAnswer: z.string().optional(),
+          points: z.number().optional(),
+          status: z.enum(["active", "inactive", "archived"]).optional(),
+        })
+      )
+      .mutation(async ({ input }) => {
+        const { id, ...data } = input;
+        return await updateQuestion(id, data);
+      }),
+
+    delete: protectedProcedure.input(z.object({ id: z.number() })).mutation(async ({ input }) => {
+      const success = await deleteQuestion(input.id);
+      return { success };
+    }),
+
+    getAnswers: protectedProcedure.input(z.object({ questionId: z.number() })).query(async ({ input }) => {
+      return await getQuestionAnswers(input.questionId);
+    }),
+  }),
+
+  answers: router({
+    submit: protectedProcedure
+      .input(
+        z.object({
+          questionId: z.number(),
+          studentId: z.number(),
+          courseId: z.number(),
+          answer: z.string(),
+        })
+      )
+      .mutation(async ({ input }) => {
+        return await submitAnswer({
+          ...input,
+          submittedAt: new Date(),
+        });
+      }),
+
+    getByStudent: protectedProcedure
+      .input(z.object({ studentId: z.number(), courseId: z.number(), limit: z.number().default(50), offset: z.number().default(0) }))
+      .query(async ({ input }) => {
+        return await getStudentAnswers(input.studentId, input.courseId, input.limit, input.offset);
+      }),
+
+    getByQuestion: protectedProcedure.input(z.object({ studentId: z.number(), questionId: z.number() })).query(async ({ input }) => {
+      return await getStudentAnswer(input.studentId, input.questionId);
+    }),
+
+    update: protectedProcedure
+      .input(
+        z.object({
+          id: z.number(),
+          isCorrect: z.number().optional(),
+          pointsEarned: z.number().optional(),
+          feedback: z.string().optional(),
+        })
+      )
+      .mutation(async ({ input }) => {
+        const { id, ...data } = input;
+        return await updateStudentAnswer(id, data);
+      }),
   }),
 });
 

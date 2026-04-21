@@ -5,7 +5,7 @@
 - [x] Design database schema (students, teachers, courses, enrollments, grades)
 - [x] Create Drizzle schema with all tables and relationships
 - [x] Generate migration SQL files
-- [ ] Execute migrations in database
+- [x] Execute migrations in database
 
 ## Phase 2: Backend Development
 - [x] Implement database query helpers in server/db.ts
@@ -50,3 +50,17 @@
 - [x] Final UI review and polish
 - [x] Create checkpoint
 - [x] Prepare deployment
+
+
+## Phase 6: Materials & Interactive Questions System
+- [ ] Extend database schema with materials and questions tables
+- [ ] Create API procedures for uploading materials (PDF/images)
+- [ ] Create API procedures for CRUD of questions
+- [ ] Create API procedures for student answers to questions
+- [ ] Build Materials page for teachers (upload, manage, delete)
+- [ ] Build Materials view page for students
+- [ ] Build Questions page for teachers (create, edit, delete)
+- [ ] Build Questions page for students (view, answer, submit)
+- [ ] Implement file storage for PDFs and images
+- [ ] Add role-based access control for materials and questions
+- [ ] Create tests for materials and questions procedures

@@ -74,8 +74,19 @@ export default function Students() {
       setOpen(false);
       resetForm();
     },
-    onError: (error) => {
-      toast.error(error.message || "Error al crear alumno");
+    onError: (error: any) => {
+      const errorMessage = error?.message || "Error al crear alumno";
+      if (errorMessage.includes("Duplicate entry") || errorMessage.includes("UNIQUE")) {
+        if (errorMessage.includes("email")) {
+          toast.error("Este email ya está registrado");
+        } else if (errorMessage.includes("enrollmentNumber")) {
+          toast.error("Este número de matrícula ya existe");
+        } else {
+          toast.error("Este registro ya existe en el sistema");
+        }
+      } else {
+        toast.error(errorMessage);
+      }
     },
   });
 
@@ -86,8 +97,19 @@ export default function Students() {
       setOpen(false);
       resetForm();
     },
-    onError: (error) => {
-      toast.error(error.message || "Error al actualizar alumno");
+    onError: (error: any) => {
+      const errorMessage = error?.message || "Error al actualizar alumno";
+      if (errorMessage.includes("Duplicate entry") || errorMessage.includes("UNIQUE")) {
+        if (errorMessage.includes("email")) {
+          toast.error("Este email ya esta registrado");
+        } else if (errorMessage.includes("enrollmentNumber")) {
+          toast.error("Este numero de matricula ya existe");
+        } else {
+          toast.error("Este registro ya existe en el sistema");
+        }
+      } else {
+        toast.error(errorMessage);
+      }
     },
   });
 

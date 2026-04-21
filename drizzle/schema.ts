@@ -167,3 +167,95 @@ export const grades = mysqlTable(
 
 export type Grade = typeof grades.$inferSelect;
 export type InsertGrade = typeof grades.$inferInsert;
+
+/**
+ * Materials table - stores course materials (PDFs, images, etc.)
+ */
+export const materials = mysqlTable(
+  "materials",
+  {
+    id: int("id").autoincrement().primaryKey(),
+    courseId: int("courseId").notNull(),
+    uploadedBy: int("uploadedBy"),
+    title: varchar("title", { length: 200 }).notNull(),
+    description: text("description"),
+    fileUrl: text("fileUrl").notNull(),
+    fileKey: varchar("fileKey", { length: 500 }).notNull(),
+    fileType: varchar("fileType", { length: 50 }).notNull(),
+    fileSize: int("fileSize"),
+    status: mysqlEnum("status", ["active", "archived"]).default("active"),
+    createdAt: timestamp("createdAt").defaultNow().notNull(),
+    updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+  },
+  (table) => [
+    foreignKey({ columns: [table.courseId], foreignColumns: [courses.id] }).onDelete("cascade"),
+    foreignKey({ columns: [table.uploadedBy], foreignColumns: [users.id] }).onDelete("set null"),
+    index("idx_material_course").on(table.courseId),
+    index("idx_material_status").on(table.status),
+  ]
+);
+
+export type Material = typeof materials.$inferSelect;
+export type InsertMaterial = typeof materials.$inferInsert;
+
+/**
+ * Questions table - stores course questions for students to answer
+ */
+export const questions = mysqlTable(
+  "questions",
+  {
+    id: int("id").autoincrement().primaryKey(),
+    courseId: int("courseId").notNull(),
+    createdBy: int("createdBy"),
+    title: varchar("title", { length: 300 }).notNull(),
+    description: text("description"),
+    questionType: mysqlEnum("questionType", ["multiple_choice", "short_answer", "essay", "true_false"]).notNull(),
+    content: text("content").notNull(),
+    correctAnswer: text("correctAnswer"),
+    points: int("points").default(1),
+    status: mysqlEnum("status", ["active", "inactive", "archived"]).default("active"),
+    createdAt: timestamp("createdAt").defaultNow().notNull(),
+    updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+  },
+  (table) => [
+    foreignKey({ columns: [table.courseId], foreignColumns: [courses.id] }).onDelete("cascade"),
+    foreignKey({ columns: [table.createdBy], foreignColumns: [users.id] }).onDelete("set null"),
+    index("idx_question_course").on(table.courseId),
+    index("idx_question_status").on(table.status),
+  ]
+);
+
+export type Question = typeof questions.$inferSelect;
+export type InsertQuestion = typeof questions.$inferInsert;
+
+/**
+ * Student Answers table - stores student responses to questions
+ */
+export const studentAnswers = mysqlTable(
+  "studentAnswers",
+  {
+    id: int("id").autoincrement().primaryKey(),
+    questionId: int("questionId").notNull(),
+    studentId: int("studentId").notNull(),
+    courseId: int("courseId").notNull(),
+    answer: text("answer").notNull(),
+    isCorrect: int("isCorrect"),
+    pointsEarned: int("pointsEarned"),
+    feedback: text("feedback"),
+    submittedAt: timestamp("submittedAt").defaultNow().notNull(),
+    createdAt: timestamp("createdAt").defaultNow().notNull(),
+    updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+  },
+  (table) => [
+    foreignKey({ columns: [table.questionId], foreignColumns: [questions.id] }).onDelete("cascade"),
+    foreignKey({ columns: [table.studentId], foreignColumns: [students.id] }).onDelete("cascade"),
+    foreignKey({ columns: [table.courseId], foreignColumns: [courses.id] }).onDelete("cascade"),
+    unique("unique_student_question").on(table.studentId, table.questionId),
+    index("idx_answer_student").on(table.studentId),
+    index("idx_answer_question").on(table.questionId),
+    index("idx_answer_course").on(table.courseId),
+  ]
+);
+
+export type StudentAnswer = typeof studentAnswers.$inferSelect;
+export type InsertStudentAnswer = typeof studentAnswers.$inferInsert;

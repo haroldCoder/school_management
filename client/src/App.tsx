@@ -13,6 +13,8 @@ import Courses from "@/pages/Courses";
 import Enrollments from "@/pages/Enrollments";
 import Grades from "@/pages/Grades";
 import Reports from "@/pages/Reports";
+import Materials from "@/pages/Materials";
+import Questions from "@/pages/Questions";
 import Home from "@/pages/Home";
 import { Loader2 } from "lucide-react";
 
@@ -49,6 +51,8 @@ function Router() {
       <Route path={"/enrollments"} component={() => <ProtectedRoute component={Enrollments} />} />
       <Route path={"/grades"} component={() => <ProtectedRoute component={Grades} />} />
       <Route path={"/reports"} component={() => <ProtectedRoute component={Reports} />} />
+      <Route path={"/materials"} component={() => <ProtectedRoute component={Materials} />} />
+      <Route path={"/questions"} component={() => <ProtectedRoute component={Questions} />} />
       <Route path={"/404"} component={NotFound} />
       {/* Final fallback route */}
       <Route component={NotFound} />
