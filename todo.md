@@ -16,7 +16,7 @@
 - [x] Create tRPC procedures for grades CRUD
 - [x] Implement role-based access control (adminProcedure, userProcedure)
 - [x] Add authorization checks for all procedures
-- [ ] Create test cases for critical procedures
+- [x] Create test cases for critical procedures
 
 ## Phase 3: Frontend Development
 - [x] Design elegant UI style guide (colors, typography, spacing)
@@ -40,13 +40,13 @@
 - [x] Create reports page in frontend
 
 ## Phase 5: Testing & Validation
-- [ ] Write vitest tests for all backend procedures
-- [ ] Test role-based access control enforcement
-- [ ] Manual testing of all CRUD operations
-- [ ] Test report generation and exports
-- [ ] Verify Spanish language content throughout
+- [x] Write vitest tests for all backend procedures
+- [x] Test role-based access control enforcement
+- [x] Manual testing of all CRUD operations
+- [x] Test report generation and exports
+- [x] Verify Spanish language content throughout
 
 ## Phase 6: Deployment & Delivery
-- [ ] Final UI review and polish
-- [ ] Create checkpoint
-- [ ] Prepare deployment
+- [x] Final UI review and polish
+- [x] Create checkpoint
+- [x] Prepare deployment
