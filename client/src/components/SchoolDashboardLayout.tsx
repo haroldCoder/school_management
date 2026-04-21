@@ -47,6 +47,7 @@ export function SchoolDashboardLayout({ children }: SchoolDashboardLayoutProps) 
     { label: t("navigation.reports"), path: "/reports", icon: BarChart3 },
     { label: "Materiales", path: "/materials", icon: FileText },
     { label: "Preguntas", path: "/questions", icon: HelpCircle },
+    { label: "Mis Respuestas", path: "/answers", icon: HelpCircle },
   ];
 
   const handleNavigation = (path: string) => {

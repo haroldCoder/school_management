@@ -15,6 +15,7 @@ import Grades from "@/pages/Grades";
 import Reports from "@/pages/Reports";
 import Materials from "@/pages/Materials";
 import Questions from "@/pages/Questions";
+import Answers from "@/pages/Answers";
 import Home from "@/pages/Home";
 import { Loader2 } from "lucide-react";
 
@@ -53,6 +54,7 @@ function Router() {
       <Route path={"/reports"} component={() => <ProtectedRoute component={Reports} />} />
       <Route path={"/materials"} component={() => <ProtectedRoute component={Materials} />} />
       <Route path={"/questions"} component={() => <ProtectedRoute component={Questions} />} />
+      <Route path={"/answers"} component={() => <ProtectedRoute component={Answers} />} />
       <Route path={"/404"} component={NotFound} />
       {/* Final fallback route */}
       <Route component={NotFound} />

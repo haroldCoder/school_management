@@ -53,14 +53,16 @@
 
 
 ## Phase 6: Materials & Interactive Questions System
-- [ ] Extend database schema with materials and questions tables
-- [ ] Create API procedures for uploading materials (PDF/images)
-- [ ] Create API procedures for CRUD of questions
-- [ ] Create API procedures for student answers to questions
-- [ ] Build Materials page for teachers (upload, manage, delete)
-- [ ] Build Materials view page for students
-- [ ] Build Questions page for teachers (create, edit, delete)
-- [ ] Build Questions page for students (view, answer, submit)
-- [ ] Implement file storage for PDFs and images
-- [ ] Add role-based access control for materials and questions
-- [ ] Create tests for materials and questions procedures
+- [x] Extend database schema with materials and questions tables
+- [x] Create API procedures for uploading materials (PDF/images)
+- [x] Create API procedures for CRUD of questions
+- [x] Create API procedures for student answers to questions
+- [x] Build Materials page for teachers (upload, manage, delete)
+- [x] Build Materials view page for students
+- [x] Build Questions page for teachers (create, edit, delete)
+- [x] Build Questions page for students (view, answer, submit)
+- [x] Implement file storage for PDFs and images
+- [x] Add role-based access control for materials and questions
+- [x] Implement teacher/admin-only procedures for material and question management
+- [x] Add student identity validation for answer submissions
+- [x] Create tests for materials and questions procedures

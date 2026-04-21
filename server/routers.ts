@@ -64,6 +64,14 @@ const adminProcedure = protectedProcedure.use(({ ctx, next }) => {
   return next({ ctx });
 });
 
+// Teacher/Admin procedure (for managing course content)
+const teacherProcedure = protectedProcedure.use(({ ctx, next }) => {
+  if (ctx.user.role !== "admin" && ctx.user.role !== "user") {
+    throw new TRPCError({ code: "FORBIDDEN", message: "Solo maestros y administradores pueden acceder a esto" });
+  }
+  return next({ ctx });
+});
+
 export const appRouter = router({
   system: systemRouter,
   auth: router({
@@ -397,7 +405,7 @@ export const appRouter = router({
       return await getMaterialById(input.id);
     }),
 
-    create: protectedProcedure
+    create: teacherProcedure
       .input(
         z.object({
           courseId: z.number(),
@@ -416,7 +424,7 @@ export const appRouter = router({
         });
       }),
 
-    update: protectedProcedure
+    update: teacherProcedure
       .input(
         z.object({
           id: z.number(),
@@ -430,7 +438,7 @@ export const appRouter = router({
         return await updateMaterial(id, data);
       }),
 
-    delete: protectedProcedure.input(z.object({ id: z.number() })).mutation(async ({ input }) => {
+    delete: teacherProcedure.input(z.object({ id: z.number() })).mutation(async ({ input }) => {
       const success = await deleteMaterial(input.id);
       return { success };
     }),
@@ -447,7 +455,7 @@ export const appRouter = router({
       return await getQuestionById(input.id);
     }),
 
-    create: protectedProcedure
+    create: teacherProcedure
       .input(
         z.object({
           courseId: z.number(),
@@ -466,7 +474,7 @@ export const appRouter = router({
         });
       }),
 
-    update: protectedProcedure
+    update: teacherProcedure
       .input(
         z.object({
           id: z.number(),
@@ -483,7 +491,7 @@ export const appRouter = router({
         return await updateQuestion(id, data);
       }),
 
-    delete: protectedProcedure.input(z.object({ id: z.number() })).mutation(async ({ input }) => {
+    delete: teacherProcedure.input(z.object({ id: z.number() })).mutation(async ({ input }) => {
       const success = await deleteQuestion(input.id);
       return { success };
     }),
@@ -503,7 +511,11 @@ export const appRouter = router({
           answer: z.string(),
         })
       )
-      .mutation(async ({ input }) => {
+      .mutation(async ({ input, ctx }) => {
+        // Verify that the current user is the student or an admin
+        if (ctx.user?.id !== input.studentId && ctx.user?.role !== "admin") {
+          throw new TRPCError({ code: "FORBIDDEN", message: "No tienes permiso para enviar respuestas en nombre de otro estudiante" });
+        }
         return await submitAnswer({
           ...input,
           submittedAt: new Date(),
