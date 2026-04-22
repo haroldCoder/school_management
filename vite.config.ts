@@ -150,7 +150,33 @@ function vitePluginManusDebugCollector(): Plugin {
   };
 }
 
-const plugins = [react(), tailwindcss(), jsxLocPlugin(), vitePluginManusRuntime(), vitePluginManusDebugCollector()];
+/**
+ * Vite plugin to conditionally include analytics script
+ * Removes the script tag from index.html if VITE_ANALYTICS_ENDPOINT is not defined
+ */
+function vitePluginAnalytics(): Plugin {
+  return {
+    name: "analytics-conditional-injection",
+    transformIndexHtml: {
+      order: "pre",
+      handler(html) {
+        if (!process.env.VITE_ANALYTICS_ENDPOINT || process.env.VITE_ANALYTICS_ENDPOINT.includes("%")) {
+          return html.replace(/<script\b[^>]*src="%VITE_ANALYTICS_ENDPOINT%\/umami"[^>]*>.*?<\/script>/gs, "");
+        }
+        return html;
+      },
+    },
+  };
+}
+
+const plugins = [
+  react(),
+  tailwindcss(),
+  jsxLocPlugin(),
+  vitePluginManusRuntime(),
+  vitePluginManusDebugCollector(),
+  vitePluginAnalytics(),
+];
 
 export default defineConfig({
   plugins,

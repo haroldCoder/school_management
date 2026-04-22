@@ -32,6 +32,16 @@
 - [x] Add loading states and error handling
 
 ## Phase 4: Reports & Export
+- [x] Diagnose the missing environment variables and routes.
+- [x] Create implementation plan to fix authentication failure and 404 redirections.
+- [x] Implement the fix: Update `.env`, `App.tsx`, and `SchoolDashboardLayout`.
+- [x] Verify the fix: Test the login flow and all sidebar links.
+- [x] Set up local MySQL using Docker Compose.
+- [/] Revamp authentication system to use local username/password.
+  - [ ] Update database schema (users table).
+  - [ ] Implement backend login/register procedures.
+  - [ ] Create frontend Auth page (Login/Register).
+  - [ ] Update App.tsx and ProtectedRoute.
 - [x] Create report generation procedures in backend
 - [x] Implement CSV export for student lists
 - [x] Implement CSV export for teacher lists

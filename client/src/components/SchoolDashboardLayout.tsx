@@ -33,12 +33,11 @@ interface SchoolDashboardLayoutProps {
 export function SchoolDashboardLayout({ children }: SchoolDashboardLayoutProps) {
   const { t } = useI18n();
   const { user, logout } = useAuth();
-  const [, setLocation] = useLocation();
+  const [location, setLocation] = useLocation();
   const [sidebarOpen, setSidebarOpen] = useState(true);
-  const [currentPath, setCurrentPath] = useState("/");
 
   const navigationItems = [
-    { label: t("navigation.dashboard"), path: "/", icon: LayoutDashboard },
+    { label: t("navigation.dashboard"), path: "/dashboard", icon: LayoutDashboard },
     { label: t("navigation.students"), path: "/students", icon: Users },
     { label: t("navigation.teachers"), path: "/teachers", icon: GraduationCap },
     { label: t("navigation.courses"), path: "/courses", icon: BookOpen },
@@ -51,7 +50,6 @@ export function SchoolDashboardLayout({ children }: SchoolDashboardLayoutProps) 
   ];
 
   const handleNavigation = (path: string) => {
-    setCurrentPath(path);
     setLocation(path);
   };
 
@@ -87,7 +85,7 @@ export function SchoolDashboardLayout({ children }: SchoolDashboardLayoutProps) 
           <nav className="flex-1 overflow-y-auto px-4 py-6 space-y-2">
             {navigationItems.map((item) => {
               const Icon = item.icon;
-              const isActive = currentPath === item.path;
+              const isActive = location === item.path;
               return (
                 <button
                   key={item.path}

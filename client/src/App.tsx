@@ -1,7 +1,6 @@
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import NotFound from "@/pages/NotFound";
-import { Route, Switch } from "wouter";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import { useAuth } from "@/_core/hooks/useAuth";
@@ -17,10 +16,14 @@ import Materials from "@/pages/Materials";
 import Questions from "@/pages/Questions";
 import CourseDetail from "@/pages/CourseDetail";
 import Home from "@/pages/Home";
+import Answers from "@/pages/Answers";
+import Settings from "@/pages/Settings";
 import { Loader2 } from "lucide-react";
+import { useLocation, Route, Switch } from "wouter";
 
 function ProtectedRoute({ component: Component }: { component: React.ComponentType }) {
   const { isAuthenticated, loading } = useAuth();
+  const [, setLocation] = useLocation();
 
   if (loading) {
     return (
@@ -31,7 +34,8 @@ function ProtectedRoute({ component: Component }: { component: React.ComponentTy
   }
 
   if (!isAuthenticated) {
-    return <Home />;
+    setLocation("/");
+    return null;
   }
 
   return (
@@ -44,19 +48,44 @@ function ProtectedRoute({ component: Component }: { component: React.ComponentTy
 function Router() {
   return (
     <Switch>
-      <Route path={"/"} component={Home} />
-      <Route path={"/dashboard"} component={() => <ProtectedRoute component={Dashboard} />} />
-      <Route path={"/students"} component={() => <ProtectedRoute component={Students} />} />
-      <Route path={"/teachers"} component={() => <ProtectedRoute component={Teachers} />} />
-      <Route path={"/courses"} component={() => <ProtectedRoute component={Courses} />} />
-      <Route path={"/enrollments"} component={() => <ProtectedRoute component={Enrollments} />} />
-      <Route path={"/grades"} component={() => <ProtectedRoute component={Grades} />} />
-      <Route path={"/reports"} component={() => <ProtectedRoute component={Reports} />} />
-      <Route path={"/materials"} component={() => <ProtectedRoute component={Materials} />} />
-      <Route path={"/questions"} component={() => <ProtectedRoute component={Questions} />} />
-      <Route path="/course-detail" component={() => <ProtectedRoute component={CourseDetail} />} />
-      <Route path={"/404"} component={NotFound} />
-      {/* Final fallback route */}
+      <Route path="/" component={Home} />
+      <Route path="/dashboard">
+        <ProtectedRoute component={Dashboard} />
+      </Route>
+      <Route path="/students">
+        <ProtectedRoute component={Students} />
+      </Route>
+      <Route path="/teachers">
+        <ProtectedRoute component={Teachers} />
+      </Route>
+      <Route path="/courses">
+        <ProtectedRoute component={Courses} />
+      </Route>
+      <Route path="/enrollments">
+        <ProtectedRoute component={Enrollments} />
+      </Route>
+      <Route path="/grades">
+        <ProtectedRoute component={Grades} />
+      </Route>
+      <Route path="/reports">
+        <ProtectedRoute component={Reports} />
+      </Route>
+      <Route path="/materials">
+        <ProtectedRoute component={Materials} />
+      </Route>
+      <Route path="/questions">
+        <ProtectedRoute component={Questions} />
+      </Route>
+      <Route path="/answers">
+        <ProtectedRoute component={Answers} />
+      </Route>
+      <Route path="/course-detail">
+        <ProtectedRoute component={CourseDetail} />
+      </Route>
+      <Route path="/settings">
+        <ProtectedRoute component={Settings} />
+      </Route>
+      <Route path="/404" component={NotFound} />
       <Route component={NotFound} />
     </Switch>
   );

@@ -22,6 +22,7 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import {
   Select,
   SelectContent,
@@ -29,7 +30,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Plus, Edit2, Trash2, Loader2, Eye } from "lucide-react";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Plus, Edit2, Trash2, Loader2, Eye, ClipboardList, X } from "lucide-react";
 import { toast } from "sonner";
 import { useLocation } from "wouter";
 
@@ -45,10 +47,32 @@ interface CourseFormData {
   status: "active" | "inactive" | "archived";
 }
 
+interface QuizQuestion {
+  content: string;
+  questionType: "multiple_choice" | "short_answer" | "essay" | "true_false";
+  correctAnswer: string;
+  points: number;
+}
+
+interface QuizFormData {
+  title: string;
+  description: string;
+  questions: QuizQuestion[];
+}
+
+const defaultQuestion = (): QuizQuestion => ({
+  content: "",
+  questionType: "short_answer",
+  correctAnswer: "",
+  points: 1,
+});
+
 export default function Courses() {
   const { t } = useI18n();
   const { user } = useAuth();
   const [, setLocation] = useLocation();
+
+  // Course dialog state
   const [open, setOpen] = useState(false);
   const [editingId, setEditingId] = useState<number | null>(null);
   const [formData, setFormData] = useState<CourseFormData>({
@@ -61,6 +85,17 @@ export default function Courses() {
     semester: "1",
     maxStudents: "",
     status: "active",
+  });
+
+  // Quiz dialog state
+  const [quizOpen, setQuizOpen] = useState(false);
+  const [selectedCourse, setSelectedCourse] = useState<any | null>(null);
+  const [quizStep, setQuizStep] = useState<1 | 2>(1);
+  const [isSavingQuiz, setIsSavingQuiz] = useState(false);
+  const [quizForm, setQuizForm] = useState<QuizFormData>({
+    title: "",
+    description: "",
+    questions: [defaultQuestion()],
   });
 
   const utils = trpc.useUtils();
@@ -101,6 +136,8 @@ export default function Courses() {
     },
   });
 
+  const createQuestionMutation = trpc.questions.create.useMutation();
+
   const resetForm = () => {
     setFormData({
       name: "",
@@ -114,6 +151,12 @@ export default function Courses() {
       status: "active",
     });
     setEditingId(null);
+  };
+
+  const resetQuizForm = () => {
+    setQuizForm({ title: "", description: "", questions: [defaultQuestion()] });
+    setQuizStep(1);
+    setSelectedCourse(null);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -154,7 +197,97 @@ export default function Courses() {
     setOpen(true);
   };
 
+  // ── Quiz handlers ──────────────────────────────────────────────────
+
+  const handleRowClick = (course: any, e: React.MouseEvent) => {
+    // Don't open quiz dialog when clicking action buttons
+    if ((e.target as HTMLElement).closest("button")) return;
+
+    if (isAdmin || isTeacher) {
+      setSelectedCourse(course);
+      setQuizForm({ title: "", description: "", questions: [defaultQuestion()] });
+      setQuizStep(1);
+      setQuizOpen(true);
+    } else {
+      // Students go straight to detail
+      setLocation(`/course-detail?id=${course.id}`);
+    }
+  };
+
+  const handleQuizNext = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!quizForm.title.trim()) {
+      toast.error("El título del quiz es requerido");
+      return;
+    }
+    setQuizStep(2);
+  };
+
+  const handleAddQuestion = () => {
+    setQuizForm((prev) => ({
+      ...prev,
+      questions: [...prev.questions, defaultQuestion()],
+    }));
+  };
+
+  const handleRemoveQuestion = (index: number) => {
+    setQuizForm((prev) => ({
+      ...prev,
+      questions: prev.questions.filter((_, i) => i !== index),
+    }));
+  };
+
+  const handleQuestionChange = (index: number, field: keyof QuizQuestion, value: any) => {
+    setQuizForm((prev) => {
+      const updated = [...prev.questions];
+      updated[index] = { ...updated[index], [field]: value };
+      return { ...prev, questions: updated };
+    });
+  };
+
+  const handleSaveQuiz = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!selectedCourse) return;
+
+    const validQuestions = quizForm.questions.filter((q) => q.content.trim());
+    if (validQuestions.length === 0) {
+      toast.error("Agrega al menos una pregunta con contenido");
+      return;
+    }
+
+    setIsSavingQuiz(true);
+    try {
+      for (const q of validQuestions) {
+        await createQuestionMutation.mutateAsync({
+          courseId: selectedCourse.id,
+          title: `[${quizForm.title}] ${q.content.slice(0, 60)}`,
+          description: quizForm.description || undefined,
+          questionType: q.questionType,
+          content: q.content,
+          correctAnswer: q.correctAnswer || undefined,
+          points: q.points,
+        });
+      }
+      utils.questions.list.invalidate({ courseId: selectedCourse.id });
+      toast.success(`Quiz "${quizForm.title}" creado con ${validQuestions.length} pregunta(s)`);
+      setQuizOpen(false);
+      resetQuizForm();
+    } catch (err: any) {
+      toast.error(err.message || "Error al guardar el quiz");
+    } finally {
+      setIsSavingQuiz(false);
+    }
+  };
+
   const isAdmin = user?.role === "admin";
+  const isTeacher = user?.role === "user"; // teachers have role "user"
+
+  const questionTypeLabel: Record<QuizQuestion["questionType"], string> = {
+    multiple_choice: "Opción Múltiple",
+    short_answer: "Respuesta Corta",
+    essay: "Ensayo",
+    true_false: "Verdadero / Falso",
+  };
 
   return (
     <div className="space-y-6">
@@ -162,7 +295,11 @@ export default function Courses() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold tracking-tight text-foreground">{t("courses.title")}</h1>
-          <p className="text-muted-foreground mt-1">Administre la información de los cursos</p>
+          <p className="text-muted-foreground mt-1">
+            {isAdmin || isTeacher
+              ? "Haz clic en un curso para agregar un quiz"
+              : "Administre la información de los cursos"}
+          </p>
         </div>
         {isAdmin && (
           <Dialog open={open} onOpenChange={setOpen}>
@@ -311,6 +448,216 @@ export default function Courses() {
         )}
       </div>
 
+      {/* ── Quiz Dialog ───────────────────────────────────────────────── */}
+      <Dialog
+        open={quizOpen}
+        onOpenChange={(v) => {
+          setQuizOpen(v);
+          if (!v) resetQuizForm();
+        }}
+      >
+        <DialogContent className="max-w-2xl max-h-[90vh] flex flex-col">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <ClipboardList className="w-5 h-5 text-primary" />
+              {quizStep === 1
+                ? `Nuevo Quiz — ${selectedCourse?.name}`
+                : `Preguntas del Quiz`}
+            </DialogTitle>
+            <DialogDescription>
+              {quizStep === 1
+                ? "Define el título y descripción del quiz."
+                : `${quizForm.title} · Agrega las preguntas y respuestas correctas.`}
+            </DialogDescription>
+          </DialogHeader>
+
+          {/* Step indicator */}
+          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+            <span
+              className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold ${quizStep === 1
+                  ? "bg-primary text-primary-foreground"
+                  : "bg-muted text-muted-foreground"
+                }`}
+            >
+              1
+            </span>
+            <span className={quizStep === 1 ? "font-medium text-foreground" : ""}>Información</span>
+            <div className="flex-1 h-px bg-border" />
+            <span
+              className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold ${quizStep === 2
+                  ? "bg-primary text-primary-foreground"
+                  : "bg-muted text-muted-foreground"
+                }`}
+            >
+              2
+            </span>
+            <span className={quizStep === 2 ? "font-medium text-foreground" : ""}>Preguntas</span>
+          </div>
+
+          {/* ── Step 1: Quiz info ── */}
+          {quizStep === 1 && (
+            <form onSubmit={handleQuizNext} className="space-y-4 flex-1">
+              <div>
+                <Label htmlFor="quiz-title">Título del Quiz *</Label>
+                <Input
+                  id="quiz-title"
+                  placeholder="Ej: Examen Parcial Unidad 1"
+                  value={quizForm.title}
+                  onChange={(e) => setQuizForm({ ...quizForm, title: e.target.value })}
+                  required
+                />
+              </div>
+              <div>
+                <Label htmlFor="quiz-desc">Descripción (opcional)</Label>
+                <Textarea
+                  id="quiz-desc"
+                  placeholder="Instrucciones generales del quiz..."
+                  value={quizForm.description}
+                  onChange={(e) => setQuizForm({ ...quizForm, description: e.target.value })}
+                  rows={3}
+                />
+              </div>
+              <div className="flex gap-3 pt-2">
+                <Button type="submit" className="flex-1">
+                  Siguiente — Agregar Preguntas →
+                </Button>
+                <Button type="button" variant="outline" onClick={() => setQuizOpen(false)}>
+                  Cancelar
+                </Button>
+              </div>
+            </form>
+          )}
+
+          {/* ── Step 2: Questions ── */}
+          {quizStep === 2 && (
+            <form onSubmit={handleSaveQuiz} className="flex flex-col flex-1 min-h-0 gap-4">
+              <ScrollArea className="flex-1 pr-2" style={{ maxHeight: "55vh" }}>
+                <div className="space-y-4">
+                  {quizForm.questions.map((q, idx) => (
+                    <div
+                      key={idx}
+                      className="border border-border rounded-lg p-4 space-y-3 relative bg-card"
+                    >
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm font-semibold text-muted-foreground">
+                          Pregunta {idx + 1}
+                        </span>
+                        {quizForm.questions.length > 1 && (
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleRemoveQuestion(idx)}
+                            className="h-7 w-7 p-0 text-destructive hover:text-destructive"
+                          >
+                            <X className="w-4 h-4" />
+                          </Button>
+                        )}
+                      </div>
+
+                      <div>
+                        <Label htmlFor={`q-content-${idx}`}>Pregunta *</Label>
+                        <Textarea
+                          id={`q-content-${idx}`}
+                          placeholder="Escribe aquí la pregunta..."
+                          value={q.content}
+                          onChange={(e) => handleQuestionChange(idx, "content", e.target.value)}
+                          rows={2}
+                        />
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-3">
+                        <div>
+                          <Label htmlFor={`q-type-${idx}`}>Tipo</Label>
+                          <Select
+                            value={q.questionType}
+                            onValueChange={(v) =>
+                              handleQuestionChange(idx, "questionType", v as QuizQuestion["questionType"])
+                            }
+                          >
+                            <SelectTrigger id={`q-type-${idx}`}>
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {(
+                                Object.entries(questionTypeLabel) as [
+                                  QuizQuestion["questionType"],
+                                  string,
+                                ][]
+                              ).map(([val, label]) => (
+                                <SelectItem key={val} value={val}>
+                                  {label}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        <div>
+                          <Label htmlFor={`q-pts-${idx}`}>Puntos</Label>
+                          <Input
+                            id={`q-pts-${idx}`}
+                            type="number"
+                            min={1}
+                            value={q.points}
+                            onChange={(e) =>
+                              handleQuestionChange(idx, "points", parseInt(e.target.value) || 1)
+                            }
+                          />
+                        </div>
+                      </div>
+
+                      <div>
+                        <Label htmlFor={`q-answer-${idx}`}>Respuesta Correcta</Label>
+                        <Input
+                          id={`q-answer-${idx}`}
+                          placeholder="Respuesta esperada o clave de corrección..."
+                          value={q.correctAnswer}
+                          onChange={(e) => handleQuestionChange(idx, "correctAnswer", e.target.value)}
+                        />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </ScrollArea>
+
+              <Button
+                type="button"
+                variant="outline"
+                className="w-full gap-2 border-dashed"
+                onClick={handleAddQuestion}
+              >
+                <Plus className="w-4 h-4" />
+                Agregar Pregunta
+              </Button>
+
+              <div className="flex gap-3">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setQuizStep(1)}
+                  disabled={isSavingQuiz}
+                >
+                  ← Atrás
+                </Button>
+                <Button type="submit" className="flex-1" disabled={isSavingQuiz}>
+                  {isSavingQuiz ? (
+                    <>
+                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                      Guardando...
+                    </>
+                  ) : (
+                    <>
+                      <ClipboardList className="w-4 h-4 mr-2" />
+                      Guardar Quiz ({quizForm.questions.filter((q) => q.content.trim()).length} preg.)
+                    </>
+                  )}
+                </Button>
+              </div>
+            </form>
+          )}
+        </DialogContent>
+      </Dialog>
+
       {/* Courses Table */}
       <Card className="border-0 shadow-sm">
         <CardHeader>
@@ -333,26 +680,41 @@ export default function Courses() {
                     <TableHead>{t("courses.academicYear")}</TableHead>
                     <TableHead>{t("courses.semester")}</TableHead>
                     <TableHead>{t("courses.status")}</TableHead>
-                    {isAdmin && <TableHead>{t("common.actions")}</TableHead>}
+                    <TableHead>{t("common.actions")}</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {courses.map((course) => (
-                    <TableRow key={course.id} className="border-b border-border/30 hover:bg-muted/50">
+                    <TableRow
+                      key={course.id}
+                      className={`border-b border-border/30 transition-colors ${isAdmin || isTeacher
+                          ? "hover:bg-primary/5 cursor-pointer"
+                          : "hover:bg-muted/50"
+                        }`}
+                      onClick={(e) => handleRowClick(course, e)}
+                    >
                       <TableCell className="font-medium">{course.code}</TableCell>
-                      <TableCell>{course.name}</TableCell>
-                      <TableCell className="text-muted-foreground">{course.teacherId ? "Asignado" : "-"}</TableCell>
+                      <TableCell>
+                        <div className="flex items-center gap-2">
+                          {course.name}
+                          {(isAdmin || isTeacher) && (
+                            <ClipboardList className="w-3.5 h-3.5 text-muted-foreground/50" />
+                          )}
+                        </div>
+                      </TableCell>
+                      <TableCell className="text-muted-foreground">
+                        {course.teacherId ? "Asignado" : "-"}
+                      </TableCell>
                       <TableCell>{course.academicYear}</TableCell>
                       <TableCell>{course.semester}</TableCell>
                       <TableCell>
                         <span
-                          className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${
-                            course.status === "active"
+                          className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${course.status === "active"
                               ? "bg-green-100 text-green-800"
                               : course.status === "inactive"
                                 ? "bg-gray-100 text-gray-800"
                                 : "bg-blue-100 text-blue-800"
-                          }`}
+                            }`}
                         >
                           {course.status === "active"
                             ? t("common.active")
