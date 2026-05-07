@@ -203,7 +203,7 @@ export default function Courses() {
     // Don't open quiz dialog when clicking action buttons
     if ((e.target as HTMLElement).closest("button")) return;
 
-    if (isAdmin || isTeacher) {
+    if (isAdmin) {
       setSelectedCourse(course);
       setQuizForm({ title: "", description: "", questions: [defaultQuestion()] });
       setQuizStep(1);
@@ -280,7 +280,8 @@ export default function Courses() {
   };
 
   const isAdmin = user?.role === "admin";
-  const isTeacher = user?.role === "user"; // teachers have role "user"
+  const isStudent = user?.role === "user";
+  const isTeacher = false; // Teachers are admins in this system
 
   const questionTypeLabel: Record<QuizQuestion["questionType"], string> = {
     multiple_choice: "Opción Múltiple",
@@ -294,11 +295,15 @@ export default function Courses() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight text-foreground">{t("courses.title")}</h1>
+          <h1 className="text-3xl font-bold tracking-tight text-foreground">
+            {isStudent ? "Mis Cursos" : t("courses.title")}
+          </h1>
           <p className="text-muted-foreground mt-1">
-            {isAdmin || isTeacher
-              ? "Haz clic en un curso para agregar un quiz"
-              : "Administre la información de los cursos"}
+            {isStudent
+              ? "Cursos en los que estás matriculado"
+              : isAdmin
+                ? "Haz clic en un curso para agregar un quiz"
+                : "Administre la información de los cursos"}
           </p>
         </div>
         {isAdmin && (
@@ -687,7 +692,7 @@ export default function Courses() {
                   {courses.map((course) => (
                     <TableRow
                       key={course.id}
-                      className={`border-b border-border/30 transition-colors ${isAdmin || isTeacher
+                      className={`border-b border-border/30 transition-colors ${isAdmin
                           ? "hover:bg-primary/5 cursor-pointer"
                           : "hover:bg-muted/50"
                         }`}
@@ -697,7 +702,7 @@ export default function Courses() {
                       <TableCell>
                         <div className="flex items-center gap-2">
                           {course.name}
-                          {(isAdmin || isTeacher) && (
+                          {isAdmin && (
                             <ClipboardList className="w-3.5 h-3.5 text-muted-foreground/50" />
                           )}
                         </div>

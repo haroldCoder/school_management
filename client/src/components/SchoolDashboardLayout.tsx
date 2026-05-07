@@ -36,18 +36,25 @@ export function SchoolDashboardLayout({ children }: SchoolDashboardLayoutProps) 
   const [location, setLocation] = useLocation();
   const [sidebarOpen, setSidebarOpen] = useState(true);
 
-  const navigationItems = [
-    { label: t("navigation.dashboard"), path: "/dashboard", icon: LayoutDashboard },
-    { label: t("navigation.students"), path: "/students", icon: Users },
-    { label: t("navigation.teachers"), path: "/teachers", icon: GraduationCap },
-    { label: t("navigation.courses"), path: "/courses", icon: BookOpen },
-    { label: t("navigation.enrollments"), path: "/enrollments", icon: ClipboardList },
-    { label: t("navigation.grades"), path: "/grades", icon: BarChart3 },
-    { label: t("navigation.reports"), path: "/reports", icon: BarChart3 },
-    { label: "Materiales", path: "/materials", icon: FileText },
-    { label: "Preguntas", path: "/questions", icon: HelpCircle },
-    { label: "Mis Respuestas", path: "/answers", icon: HelpCircle },
+  const isAdmin = user?.role === "admin";
+  const isStudent = user?.role === "user";
+
+  const allNavigationItems = [
+    { label: t("navigation.dashboard"), path: "/dashboard", icon: LayoutDashboard, roles: ["admin", "user"] },
+    { label: t("navigation.students"), path: "/students", icon: Users, roles: ["admin"] },
+    { label: t("navigation.teachers"), path: "/teachers", icon: GraduationCap, roles: ["admin", "user"] },
+    { label: isStudent ? "Mis Cursos" : t("navigation.courses"), path: "/courses", icon: BookOpen, roles: ["admin", "user"] },
+    { label: t("navigation.enrollments"), path: "/enrollments", icon: ClipboardList, roles: ["admin"] },
+    { label: isStudent ? "Mis Calificaciones" : t("navigation.grades"), path: "/grades", icon: BarChart3, roles: ["admin", "user"] },
+    { label: isStudent ? "Mis Reportes" : t("navigation.reports"), path: "/reports", icon: BarChart3, roles: ["admin", "user"] },
+    { label: "Materiales", path: "/materials", icon: FileText, roles: ["admin"] },
+    { label: "Preguntas", path: "/questions", icon: HelpCircle, roles: ["admin"] },
+    { label: "Mis Respuestas", path: "/answers", icon: HelpCircle, roles: ["admin", "user"] },
   ];
+
+  const navigationItems = allNavigationItems.filter(
+    (item) => item.roles.includes(user?.role ?? "")
+  );
 
   const handleNavigation = (path: string) => {
     setLocation(path);
@@ -110,12 +117,12 @@ export function SchoolDashboardLayout({ children }: SchoolDashboardLayoutProps) 
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" className="w-full justify-start gap-3 h-auto py-2 px-3">
                   <div className="w-8 h-8 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-white text-sm font-bold">
-                    {user?.name?.charAt(0).toUpperCase() || "U"}
+                    {user?.username?.charAt(0).toUpperCase() || "U"}
                   </div>
                   <div className="text-left">
-                    <p className="text-sm font-medium text-foreground">{user?.name || "Usuario"}</p>
+                    <p className="text-sm font-medium text-foreground">{user?.username || "Usuario"}</p>
                     <p className="text-xs text-muted-foreground">
-                      {user?.role === "admin" ? "Administrador" : "Usuario"}
+                      {user?.role === "admin" ? "Administrador" : "Alumno"}
                     </p>
                   </div>
                 </Button>
@@ -123,8 +130,7 @@ export function SchoolDashboardLayout({ children }: SchoolDashboardLayoutProps) 
               <DropdownMenuContent align="end" className="w-56">
                 <DropdownMenuItem disabled>
                   <div className="flex flex-col gap-1">
-                    <p className="text-sm font-medium">{user?.name}</p>
-                    <p className="text-xs text-muted-foreground">{user?.email}</p>
+                    <p className="text-sm font-medium">{user?.username}</p>
                   </div>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
@@ -155,9 +161,6 @@ export function SchoolDashboardLayout({ children }: SchoolDashboardLayoutProps) 
               {sidebarOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
             </button>
             <div className="flex-1" />
-            <div className="flex items-center gap-4">
-              <span className="text-sm text-muted-foreground">{user?.email}</span>
-            </div>
           </div>
         </header>
 

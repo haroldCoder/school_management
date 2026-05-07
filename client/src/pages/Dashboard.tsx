@@ -1,12 +1,16 @@
 import { useI18n } from "@/hooks/useI18n";
 import { trpc } from "@/lib/trpc";
+import { useAuth } from "@/_core/hooks/useAuth";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Users, BookOpen, GraduationCap, ClipboardList } from "lucide-react";
+import { Users, BookOpen, GraduationCap, ClipboardList, BarChart3 } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 
 export default function Dashboard() {
   const { t } = useI18n();
+  const { user } = useAuth();
   const { data: stats, isLoading } = trpc.dashboard.stats.useQuery();
+
+  const isStudent = user?.role === "user";
 
   const StatCard = ({
     icon: Icon,
@@ -36,6 +40,62 @@ export default function Dashboard() {
     </Card>
   );
 
+  // Student Dashboard
+  if (isStudent) {
+    return (
+      <div className="space-y-8">
+        {/* Header */}
+        <div>
+          <h1 className="text-4xl font-bold tracking-tight text-foreground">
+            ¡Bienvenido, {user?.username || "Alumno"}!
+          </h1>
+          <p className="text-muted-foreground mt-2">
+            Tu panel de alumno — consulta tus cursos y calificaciones
+          </p>
+        </div>
+
+        {/* Student Statistics */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <StatCard
+            icon={BookOpen}
+            label="Mis Cursos"
+            value={stats?.courseCount ?? 0}
+            loading={isLoading}
+          />
+          <StatCard
+            icon={ClipboardList}
+            label="Mis Matrículas"
+            value={stats?.enrollmentCount ?? 0}
+            loading={isLoading}
+          />
+          <StatCard
+            icon={BarChart3}
+            label="Mis Calificaciones"
+            value={(stats as any)?.gradeCount ?? 0}
+            loading={isLoading}
+          />
+        </div>
+
+        {/* Info Card */}
+        <Card className="border-0 shadow-sm bg-gradient-to-br from-blue-500/5 to-indigo-500/10">
+          <CardHeader>
+            <CardTitle>Tu Espacio Académico</CardTitle>
+            <CardDescription>
+              Desde aquí puedes consultar toda tu información académica.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <p className="text-sm text-muted-foreground">
+              Usa el menú lateral para acceder a: <strong>Mis Cursos</strong>, <strong>Mis Calificaciones</strong>,
+              <strong> Mis Reportes</strong> y <strong>Mis Respuestas</strong>.
+            </p>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  // Admin Dashboard (unchanged)
   return (
     <div className="space-y-8">
       {/* Header */}

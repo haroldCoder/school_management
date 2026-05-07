@@ -12,6 +12,7 @@ import {
   getUserByUsername,
   getStudents,
   getStudentById,
+  getStudentByUserId,
   updateStudent,
   deleteStudent,
   getStudentCount,
@@ -24,6 +25,7 @@ import {
   createCourse,
   getCourses,
   getCourseById,
+  getCoursesByStudentId,
   updateCourse,
   deleteCourse,
   getCourseCount,
@@ -71,9 +73,10 @@ const adminProcedure = protectedProcedure.use(({ ctx, next }) => {
 });
 
 // Teacher/Admin procedure (for managing course content)
+// Only admins can manage content — students (role: "user") are read-only
 const teacherProcedure = protectedProcedure.use(({ ctx, next }) => {
-  if (ctx.user.role !== "admin" && ctx.user.role !== "user") {
-    throw new TRPCError({ code: "FORBIDDEN", message: "Solo maestros y administradores pueden acceder a esto" });
+  if (ctx.user.role !== "admin") {
+    throw new TRPCError({ code: "FORBIDDEN", message: "Solo administradores pueden acceder a esto" });
   }
   return next({ ctx });
 });
@@ -81,7 +84,15 @@ const teacherProcedure = protectedProcedure.use(({ ctx, next }) => {
 export const appRouter = router({
   system: systemRouter,
   auth: router({
-    me: publicProcedure.query(({ ctx }) => ctx.user ?? null),
+    me: publicProcedure.query(async ({ ctx }) => {
+      if (!ctx.user) return null;
+      // Include studentId for student users
+      if (ctx.user.role === "user") {
+        const student = await getStudentByUserId(ctx.user.id);
+        return { ...ctx.user, studentId: student?.id ?? null };
+      }
+      return { ...ctx.user, studentId: null };
+    }),
     register: publicProcedure
       .input(
         z.object({
@@ -149,7 +160,14 @@ export const appRouter = router({
         const cookieOptions = getSessionCookieOptions(ctx.req);
         ctx.res.cookie(COOKIE_NAME, sessionToken, { ...cookieOptions, maxAge: ONE_YEAR_MS });
 
-        return user;
+        // If student, include studentId in response
+        let studentId: number | null = null;
+        if (user.role === "user") {
+          const student = await getStudentByUserId(user.id);
+          studentId = student?.id ?? null;
+        }
+
+        return { ...user, studentId };
       }),
     logout: publicProcedure.mutation(({ ctx }) => {
       const cookieOptions = getSessionCookieOptions(ctx.req);
@@ -162,7 +180,26 @@ export const appRouter = router({
 
   // ============ DASHBOARD ============
   dashboard: router({
-    stats: protectedProcedure.query(async () => {
+    stats: protectedProcedure.query(async ({ ctx }) => {
+      // Students see only their own stats
+      if (ctx.user.role === "user") {
+        const student = await getStudentByUserId(ctx.user.id);
+        if (!student) return { studentCount: 0, teacherCount: 0, courseCount: 0, enrollmentCount: 0 };
+
+        const myCourses = await getCoursesByStudentId(student.id);
+        const myGrades = await getGradesByStudent(student.id);
+        const myEnrollments = await getEnrollmentsByStudent(student.id);
+
+        return {
+          studentCount: 0, // Not relevant for students
+          teacherCount: 0,
+          courseCount: myCourses.length,
+          enrollmentCount: myEnrollments.length,
+          // Extra student-specific data
+          gradeCount: myGrades.length,
+        };
+      }
+
       const [studentCount, teacherCount, courseCount, enrollmentCount] = await Promise.all([
         getStudentCount(),
         getTeacherCount(),
@@ -181,11 +218,18 @@ export const appRouter = router({
 
   // ============ STUDENTS ============
   students: router({
-    list: protectedProcedure
+    // Only admins can list all students
+    list: adminProcedure
       .input(z.object({ limit: z.number().default(50), offset: z.number().default(0) }))
       .query(async ({ input }) => {
         return await getStudents(input.limit, input.offset);
       }),
+
+    // Get the current student's own profile
+    me: protectedProcedure.query(async ({ ctx }) => {
+      if (ctx.user.role !== "user") return null;
+      return await getStudentByUserId(ctx.user.id);
+    }),
 
     getById: protectedProcedure.input(z.object({ id: z.number() })).query(async ({ input }) => {
       return await getStudentById(input.id);
@@ -308,7 +352,14 @@ export const appRouter = router({
   courses: router({
     list: protectedProcedure
       .input(z.object({ limit: z.number().default(50), offset: z.number().default(0) }))
-      .query(async ({ input }) => {
+      .query(async ({ input, ctx }) => {
+        // Students only see courses they are enrolled in
+        if (ctx.user.role === "user") {
+          const student = await getStudentByUserId(ctx.user.id);
+          if (!student) return [];
+          const result = await getCoursesByStudentId(student.id);
+          return result.map((r) => r.course);
+        }
         return await getCourses(input.limit, input.offset);
       }),
 
@@ -414,7 +465,13 @@ export const appRouter = router({
   grades: router({
     list: protectedProcedure
       .input(z.object({ limit: z.number().default(50), offset: z.number().default(0) }))
-      .query(async ({ input }) => {
+      .query(async ({ input, ctx }) => {
+        // Students only see their own grades
+        if (ctx.user.role === "user") {
+          const student = await getStudentByUserId(ctx.user.id);
+          if (!student) return [];
+          return await getGradesByStudent(student.id);
+        }
         return await getGrades(input.limit, input.offset);
       }),
 

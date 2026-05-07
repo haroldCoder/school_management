@@ -132,6 +132,24 @@ export async function updateUser(id: number, data: InsertUser) {
   }
 }
 
+export async function getStudentByUserId(userId: number) {
+  const db = await getDb();
+  if (!db) return undefined;
+  const result = await db.select().from(students).where(eq(students.idUser, userId)).limit(1);
+  return result.length > 0 ? result[0] : undefined;
+}
+
+export async function getCoursesByStudentId(studentId: number) {
+  const db = await getDb();
+  if (!db) return [];
+
+  return await db
+    .select({ course: courses })
+    .from(enrollments)
+    .innerJoin(courses, eq(enrollments.courseId, courses.id))
+    .where(eq(enrollments.studentId, studentId));
+}
+
 // ============ STUDENTS ============
 
 export async function createStudent(data: InsertStudent): Promise<Student> {

@@ -52,6 +52,39 @@ function ProtectedRoute({ component: Component }: { component: React.ComponentTy
   );
 }
 
+function AdminRoute({ component: Component }: { component: React.ComponentType }) {
+  const { isAuthenticated, loading, user } = useAuth();
+  const [, setLocation] = useLocation();
+
+  useEffect(() => {
+    if (!loading && !isAuthenticated) {
+      setLocation("/auth");
+    }
+    // Redirect students away from admin-only pages
+    if (!loading && isAuthenticated && user?.role === "user") {
+      setLocation("/dashboard");
+    }
+  }, [loading, isAuthenticated, user, setLocation]);
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <Loader2 className="w-8 h-8 animate-spin text-muted-foreground" />
+      </div>
+    );
+  }
+
+  if (!isAuthenticated || user?.role === "user") {
+    return null;
+  }
+
+  return (
+    <SchoolDashboardLayout>
+      <Component />
+    </SchoolDashboardLayout>
+  );
+}
+
 function Router() {
   return (
     <Switch>
@@ -60,7 +93,7 @@ function Router() {
         <ProtectedRoute component={Dashboard} />
       </Route>
       <Route path="/students">
-        <ProtectedRoute component={Students} />
+        <AdminRoute component={Students} />
       </Route>
       <Route path="/teachers">
         <ProtectedRoute component={Teachers} />
@@ -69,7 +102,7 @@ function Router() {
         <ProtectedRoute component={Courses} />
       </Route>
       <Route path="/enrollments">
-        <ProtectedRoute component={Enrollments} />
+        <AdminRoute component={Enrollments} />
       </Route>
       <Route path="/grades">
         <ProtectedRoute component={Grades} />
@@ -78,10 +111,10 @@ function Router() {
         <ProtectedRoute component={Reports} />
       </Route>
       <Route path="/materials">
-        <ProtectedRoute component={Materials} />
+        <AdminRoute component={Materials} />
       </Route>
       <Route path="/questions">
-        <ProtectedRoute component={Questions} />
+        <AdminRoute component={Questions} />
       </Route>
       <Route path="/answers">
         <ProtectedRoute component={Answers} />
