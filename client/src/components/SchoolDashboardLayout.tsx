@@ -47,9 +47,6 @@ export function SchoolDashboardLayout({ children }: SchoolDashboardLayoutProps) 
     { label: t("navigation.enrollments"), path: "/enrollments", icon: ClipboardList, roles: ["admin"] },
     { label: isStudent ? "Mis Calificaciones" : t("navigation.grades"), path: "/grades", icon: BarChart3, roles: ["admin", "user"] },
     { label: isStudent ? "Mis Reportes" : t("navigation.reports"), path: "/reports", icon: BarChart3, roles: ["admin", "user"] },
-    { label: "Materiales", path: "/materials", icon: FileText, roles: ["admin"] },
-    { label: "Preguntas", path: "/questions", icon: HelpCircle, roles: ["admin"] },
-    { label: "Mis Respuestas", path: "/answers", icon: HelpCircle, roles: ["admin", "user"] },
   ];
 
   const navigationItems = allNavigationItems.filter(

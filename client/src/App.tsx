@@ -12,11 +12,8 @@ import Courses from "@/pages/Courses";
 import Enrollments from "@/pages/Enrollments";
 import Grades from "@/pages/Grades";
 import Reports from "@/pages/Reports";
-import Materials from "@/pages/Materials";
-import Questions from "@/pages/Questions";
 import CourseDetail from "@/pages/CourseDetail";
 import Home from "@/pages/Home";
-import Answers from "@/pages/Answers";
 import Settings from "@/pages/Settings";
 import Auth from "@/pages/Auth";
 import { Loader2 } from "lucide-react";
@@ -109,15 +106,6 @@ function Router() {
       </Route>
       <Route path="/reports">
         <ProtectedRoute component={Reports} />
-      </Route>
-      <Route path="/materials">
-        <AdminRoute component={Materials} />
-      </Route>
-      <Route path="/questions">
-        <AdminRoute component={Questions} />
-      </Route>
-      <Route path="/answers">
-        <ProtectedRoute component={Answers} />
       </Route>
       <Route path="/course-detail">
         <ProtectedRoute component={CourseDetail} />
