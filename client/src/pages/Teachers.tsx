@@ -168,6 +168,117 @@ export default function Teachers() {
           <h1 className="text-3xl font-bold tracking-tight text-foreground">{t("teachers.title")}</h1>
           <p className="text-muted-foreground mt-1">Administre la información de los profesores</p>
         </div>
+        {isAdmin && (
+          <Dialog open={open} onOpenChange={setOpen}>
+            <DialogContent className="max-w-2xl">
+              <DialogHeader>
+                <DialogTitle>{editingId ? t("teachers.editTeacher") : t("teachers.addTeacher")}</DialogTitle>
+                <DialogDescription>
+                  Complete los datos del profesor. Los campos marcados con * son obligatorios.
+                </DialogDescription>
+              </DialogHeader>
+
+              <form onSubmit={handleSubmit} className="space-y-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="firstName">{t("teachers.firstName")} *</Label>
+                    <Input
+                      id="firstName"
+                      value={formData.firstName}
+                      onChange={(e) => setFormData({ ...formData, firstName: e.target.value })}
+                      required
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="lastName">{t("teachers.lastName")} *</Label>
+                    <Input
+                      id="lastName"
+                      value={formData.lastName}
+                      onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
+                      required
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="email">{t("teachers.email")}</Label>
+                    <Input
+                      id="email"
+                      type="email"
+                      value={formData.email}
+                      onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="phone">{t("teachers.phone")}</Label>
+                    <Input
+                      id="phone"
+                      value={formData.phone}
+                      onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="specialization">{t("teachers.specialization")}</Label>
+                    <Input
+                      id="specialization"
+                      value={formData.specialization}
+                      onChange={(e) => setFormData({ ...formData, specialization: e.target.value })}
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="employeeNumber">{t("teachers.employeeNumber")}</Label>
+                    <Input
+                      id="employeeNumber"
+                      value={formData.employeeNumber}
+                      onChange={(e) => setFormData({ ...formData, employeeNumber: e.target.value })}
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="hireDate">{t("teachers.hireDate")}</Label>
+                    <Input
+                      id="hireDate"
+                      type="date"
+                      value={formData.hireDate}
+                      onChange={(e) => setFormData({ ...formData, hireDate: e.target.value })}
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="status">{t("teachers.status")}</Label>
+                    <Select
+                      value={formData.status}
+                      onValueChange={(value: any) => setFormData({ ...formData, status: value })}
+                    >
+                      <SelectTrigger id="status">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="active">{t("common.active")}</SelectItem>
+                        <SelectItem value="inactive">{t("common.inactive")}</SelectItem>
+                        <SelectItem value="on_leave">{t("teachers.onLeave")}</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+
+                <div className="flex gap-3 pt-4">
+                  <Button type="submit" disabled={updateMutation.isPending}>
+                    {t("common.save")}
+                  </Button>
+                  <Button type="button" variant="outline" onClick={() => setOpen(false)}>
+                    {t("common.cancel")}
+                  </Button>
+                </div>
+              </form>
+            </DialogContent>
+          </Dialog>
+        )}
       </div>
 
       {/* Teachers Table */}
@@ -209,25 +320,29 @@ export default function Teachers() {
                       {isAdmin && (
                         <TableCell>
                           <div className="flex gap-2">
-                            <Button
-                              size="sm"
-                              variant="ghost"
-                              onClick={() => handleEdit(teacher)}
-                            >
-                              <Edit2 className="w-4 h-4" />
-                            </Button>
-                            <Button
-                              size="sm"
-                              variant="ghost"
-                              onClick={() => {
-                                if (confirm(t("common.confirmDelete"))) {
-                                  deleteMutation.mutate({ id: teacher.id });
-                                }
-                              }}
-                              disabled={deleteMutation.isPending}
-                            >
-                              <Trash2 className="w-4 h-4" />
-                            </Button>
+                            {teacher.idUser === user?.id && (
+                              <>
+                                <Button
+                                  size="sm"
+                                  variant="ghost"
+                                  onClick={() => handleEdit(teacher)}
+                                >
+                                  <Edit2 className="w-4 h-4" />
+                                </Button>
+                                <Button
+                                  size="sm"
+                                  variant="ghost"
+                                  onClick={() => {
+                                    if (confirm(t("common.confirmDelete"))) {
+                                      deleteMutation.mutate({ id: teacher.id });
+                                    }
+                                  }}
+                                  disabled={deleteMutation.isPending}
+                                >
+                                  <Trash2 className="w-4 h-4" />
+                                </Button>
+                              </>
+                            )}
                           </div>
                         </TableCell>
                       )}

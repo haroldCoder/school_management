@@ -337,12 +337,28 @@ export const appRouter = router({
           status: z.enum(["active", "inactive", "on_leave"]).optional(),
         })
       )
-      .mutation(async ({ input }) => {
+      .mutation(async ({ input, ctx }) => {
         const { id, ...data } = input;
+        const teacher = await getTeacherById(id);
+        if (!teacher) throw new TRPCError({ code: "NOT_FOUND", message: "Profesor no encontrado" });
+        
+        // Only allow modification if the user is the owner
+        if (teacher.idUser !== ctx.user.id) {
+          throw new TRPCError({ code: "FORBIDDEN", message: "No tienes permiso para modificar a este profesor" });
+        }
+        
         return await updateTeacher(id, data);
       }),
 
-    delete: adminProcedure.input(z.object({ id: z.number() })).mutation(async ({ input }) => {
+    delete: adminProcedure.input(z.object({ id: z.number() })).mutation(async ({ input, ctx }) => {
+      const teacher = await getTeacherById(input.id);
+      if (!teacher) throw new TRPCError({ code: "NOT_FOUND", message: "Profesor no encontrado" });
+
+      // Only allow deletion if the user is the owner
+      if (teacher.idUser !== ctx.user.id) {
+        throw new TRPCError({ code: "FORBIDDEN", message: "No tienes permiso para eliminar a este profesor" });
+      }
+
       const success = await deleteTeacher(input.id);
       return { success };
     }),
