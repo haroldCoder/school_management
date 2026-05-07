@@ -18,12 +18,20 @@ import CourseDetail from "@/pages/CourseDetail";
 import Home from "@/pages/Home";
 import Answers from "@/pages/Answers";
 import Settings from "@/pages/Settings";
+import Auth from "@/pages/Auth";
 import { Loader2 } from "lucide-react";
 import { useLocation, Route, Switch } from "wouter";
+import { useEffect } from "react";
 
 function ProtectedRoute({ component: Component }: { component: React.ComponentType }) {
   const { isAuthenticated, loading } = useAuth();
   const [, setLocation] = useLocation();
+
+  useEffect(() => {
+    if (!loading && !isAuthenticated) {
+      setLocation("/auth");
+    }
+  }, [loading, isAuthenticated, setLocation]);
 
   if (loading) {
     return (
@@ -34,7 +42,6 @@ function ProtectedRoute({ component: Component }: { component: React.ComponentTy
   }
 
   if (!isAuthenticated) {
-    setLocation("/");
     return null;
   }
 
@@ -85,6 +92,7 @@ function Router() {
       <Route path="/settings">
         <ProtectedRoute component={Settings} />
       </Route>
+      <Route path="/auth" component={Auth} />
       <Route path="/404" component={NotFound} />
       <Route component={NotFound} />
     </Switch>

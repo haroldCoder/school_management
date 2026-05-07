@@ -37,11 +37,14 @@
 - [x] Implement the fix: Update `.env`, `App.tsx`, and `SchoolDashboardLayout`.
 - [x] Verify the fix: Test the login flow and all sidebar links.
 - [x] Set up local MySQL using Docker Compose.
-- [/] Revamp authentication system to use local username/password.
-  - [ ] Update database schema (users table).
-  - [ ] Implement backend login/register procedures.
-  - [ ] Create frontend Auth page (Login/Register).
-  - [ ] Update App.tsx and ProtectedRoute.
+- [x] Revamp authentication system to use local username/password.
+  - [x] Update database schema (users table).
+  - [x] Implement backend login/register procedures.
+  - [x] Create frontend Auth page (Login/Register).
+  - [x] Update App.tsx and ProtectedRoute.
+  - [x] Seed admin user (admin/admin).
+  - [x] Implement localStorage persistence in `useAuth`.
+  - [x] Populate `meQuery` from `localStorage` on init.
 - [x] Create report generation procedures in backend
 - [x] Implement CSV export for student lists
 - [x] Implement CSV export for teacher lists

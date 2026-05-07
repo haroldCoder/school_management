@@ -29,6 +29,13 @@
       "when": 1776798279542,
       "tag": "0003_mature_archangel",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "5",
+      "when": 1776879510343,
+      "tag": "0004_eager_magneto",
+      "breakpoints": true
     }
   ]
 }

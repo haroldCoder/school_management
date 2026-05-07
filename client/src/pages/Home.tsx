@@ -57,8 +57,8 @@ export default function Home() {
             </div>
             <h1 className="font-bold text-xl text-foreground">EduGest</h1>
           </div>
-          <Button onClick={() => window.location.href = getLoginUrl()}>
-            Iniciar Sesión
+          <Button onClick={() => setLocation("/auth")}>
+            Acceder
           </Button>
         </div>
       </nav>

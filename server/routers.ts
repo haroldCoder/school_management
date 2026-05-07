@@ -1,11 +1,16 @@
-import { COOKIE_NAME } from "@shared/const";
+import { COOKIE_NAME, ONE_YEAR_MS } from "@shared/const";
 import { getSessionCookieOptions } from "./_core/cookies";
 import { systemRouter } from "./_core/systemRouter";
 import { publicProcedure, router, protectedProcedure } from "./_core/trpc";
 import { z } from "zod";
 import { TRPCError } from "@trpc/server";
+import { hashPassword, verifyPassword } from "./_core/hash";
+import { sdk } from "./_core/sdk";
+import { ENV } from "./_core/env";
 import {
+  createUser,
   createStudent,
+  getUserByUsername,
   getStudents,
   getStudentById,
   updateStudent,
@@ -75,7 +80,66 @@ const teacherProcedure = protectedProcedure.use(({ ctx, next }) => {
 export const appRouter = router({
   system: systemRouter,
   auth: router({
-    me: publicProcedure.query((opts) => opts.ctx.user),
+    me: publicProcedure.query(({ ctx }) => ctx.user ?? null),
+    register: publicProcedure
+      .input(
+        z.object({
+          username: z.string().min(3),
+          password: z.string().min(6),
+          name: z.string().optional(),
+          email: z.string().email().optional(),
+        })
+      )
+      .mutation(async ({ input, ctx }) => {
+        const existingUser = await getUserByUsername(input.username);
+        if (existingUser) {
+          throw new TRPCError({ code: "CONFLICT", message: "El nombre de usuario ya está en uso" });
+        }
+
+        const hashedPassword = hashPassword(input.password);
+        const user = await createUser({
+          username: input.username,
+          password: hashedPassword,
+          name: input.name || input.username,
+          email: input.email || null,
+          role: input.username === ENV.ownerOpenId ? "admin" : "user", // Keep owner as admin
+          lastSignedIn: new Date(),
+          openId: input.username, // Maintain compatibility
+        });
+
+        const sessionToken = await sdk.createSessionToken(user.openId!, {
+          name: user.name || user.username!,
+          expiresInMs: ONE_YEAR_MS,
+        });
+
+        const cookieOptions = getSessionCookieOptions(ctx.req);
+        ctx.res.cookie(COOKIE_NAME, sessionToken, { ...cookieOptions, maxAge: ONE_YEAR_MS });
+
+        return user;
+      }),
+    login: publicProcedure
+      .input(
+        z.object({
+          username: z.string(),
+          password: z.string(),
+        })
+      )
+      .mutation(async ({ input, ctx }) => {
+        const user = await getUserByUsername(input.username);
+        if (!user || !user.password || !verifyPassword(input.password, user.password)) {
+          throw new TRPCError({ code: "UNAUTHORIZED", message: "Usuario o contraseña inválidos" });
+        }
+
+        const sessionToken = await sdk.createSessionToken(user.openId!, {
+          name: user.name || user.username!,
+          expiresInMs: ONE_YEAR_MS,
+        });
+
+        const cookieOptions = getSessionCookieOptions(ctx.req);
+        ctx.res.cookie(COOKIE_NAME, sessionToken, { ...cookieOptions, maxAge: ONE_YEAR_MS });
+
+        return user;
+      }),
     logout: publicProcedure.mutation(({ ctx }) => {
       const cookieOptions = getSessionCookieOptions(ctx.req);
       ctx.res.clearCookie(COOKIE_NAME, { ...cookieOptions, maxAge: -1 });

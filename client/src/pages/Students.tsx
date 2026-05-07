@@ -49,6 +49,7 @@ interface StudentFormData {
 export default function Students() {
   const { t } = useI18n();
   const { user } = useAuth();
+  console.log(user);
   const [open, setOpen] = useState(false);
   const [editingId, setEditingId] = useState<number | null>(null);
   const [formData, setFormData] = useState<StudentFormData>({
@@ -370,13 +371,12 @@ export default function Students() {
                       <TableCell>{student.enrollmentNumber || "-"}</TableCell>
                       <TableCell>
                         <span
-                          className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${
-                            student.status === "active"
-                              ? "bg-green-100 text-green-800"
-                              : student.status === "inactive"
-                                ? "bg-gray-100 text-gray-800"
-                                : "bg-blue-100 text-blue-800"
-                          }`}
+                          className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${student.status === "active"
+                            ? "bg-green-100 text-green-800"
+                            : student.status === "inactive"
+                              ? "bg-gray-100 text-gray-800"
+                              : "bg-blue-100 text-blue-800"
+                            }`}
                         >
                           {student.status === "active"
                             ? t("common.active")
