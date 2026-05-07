@@ -62,6 +62,8 @@ import {
   getQuestionAnswers,
   upsertUser,
   updateUser,
+  getTeacherByUserId,
+  getCoursesByTeacherId,
 } from "./db";
 
 // Admin-only procedure
@@ -89,9 +91,23 @@ export const appRouter = router({
       // Include studentId for student users
       if (ctx.user.role === "user") {
         const student = await getStudentByUserId(ctx.user.id);
-        return { ...ctx.user, studentId: student?.id ?? null };
+        return {
+          ...ctx.user,
+          studentId: student?.id ?? null,
+          teacherId: null,
+          firstName: student?.firstName ?? ctx.user.username,
+          lastName: student?.lastName ?? ""
+        };
       }
-      return { ...ctx.user, studentId: null };
+      // Include teacherId for admin/teacher users
+      const teacher = await getTeacherByUserId(ctx.user.id);
+      return {
+        ...ctx.user,
+        studentId: null,
+        teacherId: teacher?.id ?? null,
+        firstName: teacher?.firstName ?? ctx.user.username,
+        lastName: teacher?.lastName ?? ""
+      };
     }),
     register: publicProcedure
       .input(
@@ -341,12 +357,12 @@ export const appRouter = router({
         const { id, ...data } = input;
         const teacher = await getTeacherById(id);
         if (!teacher) throw new TRPCError({ code: "NOT_FOUND", message: "Profesor no encontrado" });
-        
+
         // Only allow modification if the user is the owner
         if (teacher.idUser !== ctx.user.id) {
           throw new TRPCError({ code: "FORBIDDEN", message: "No tienes permiso para modificar a este profesor" });
         }
-        
+
         return await updateTeacher(id, data);
       }),
 
@@ -376,7 +392,9 @@ export const appRouter = router({
           const result = await getCoursesByStudentId(student.id);
           return result.map((r) => r.course);
         }
-        return await getCourses(input.limit, input.offset);
+        const teacher = await getTeacherByUserId(ctx.user.id);
+        if (!teacher) return [];
+        return await getCoursesByTeacherId(teacher.id, input);
       }),
 
     getById: protectedProcedure.input(z.object({ id: z.number() })).query(async ({ input }) => {
@@ -390,15 +408,22 @@ export const appRouter = router({
           code: z.string().min(1),
           description: z.string().optional(),
           credits: z.number().optional(),
-          teacherId: z.number().optional(),
           academicYear: z.string().min(1),
           semester: z.enum(["1", "2"]),
           maxStudents: z.number().optional(),
           status: z.enum(["active", "inactive", "archived"]).default("active"),
         })
       )
-      .mutation(async ({ input }) => {
-        return await createCourse(input);
+      .mutation(async ({ input, ctx }) => {
+        const teacher = await getTeacherByUserId(ctx.user.id);
+
+        if (!teacher) {
+          throw new TRPCError({
+            code: "NOT_FOUND",
+            message: "No se encontró un registro de profesor asociado a tu cuenta"
+          });
+        }
+        return await createCourse({ ...input, teacherId: teacher.id });
       }),
 
     update: adminProcedure

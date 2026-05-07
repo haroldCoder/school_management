@@ -40,7 +40,6 @@ interface CourseFormData {
   code: string;
   description: string;
   credits: string;
-  teacherId: string;
   academicYear: string;
   semester: "1" | "2";
   maxStudents: string;
@@ -80,7 +79,6 @@ export default function Courses() {
     code: "",
     description: "",
     credits: "",
-    teacherId: "",
     academicYear: new Date().getFullYear().toString(),
     semester: "1",
     maxStudents: "",
@@ -100,7 +98,6 @@ export default function Courses() {
 
   const utils = trpc.useUtils();
   const { data: courses, isLoading } = trpc.courses.list.useQuery({ limit: 100 });
-  const { data: teachers } = trpc.teachers.list.useQuery({ limit: 100 });
 
   const createMutation = trpc.courses.create.useMutation({
     onSuccess: () => {
@@ -144,7 +141,6 @@ export default function Courses() {
       code: "",
       description: "",
       credits: "",
-      teacherId: "",
       academicYear: new Date().getFullYear().toString(),
       semester: "1",
       maxStudents: "",
@@ -167,7 +163,6 @@ export default function Courses() {
       code: formData.code,
       description: formData.description || undefined,
       credits: formData.credits ? parseInt(formData.credits) : undefined,
-      teacherId: formData.teacherId ? parseInt(formData.teacherId) : undefined,
       academicYear: formData.academicYear,
       semester: formData.semester,
       maxStudents: formData.maxStudents ? parseInt(formData.maxStudents) : undefined,
@@ -187,7 +182,6 @@ export default function Courses() {
       code: course.code,
       description: course.description || "",
       credits: course.credits?.toString() || "",
-      teacherId: course.teacherId?.toString() || "",
       academicYear: course.academicYear,
       semester: course.semester,
       maxStudents: course.maxStudents?.toString() || "",
@@ -364,22 +358,10 @@ export default function Courses() {
                     />
                   </div>
                   <div>
-                    <Label htmlFor="teacherId">{t("courses.teacher")}</Label>
-                    <Select
-                      value={formData.teacherId}
-                      onValueChange={(value) => setFormData({ ...formData, teacherId: value })}
-                    >
-                      <SelectTrigger id="teacherId">
-                        <SelectValue placeholder="Seleccionar profesor" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {teachers?.map((teacher) => (
-                          <SelectItem key={teacher.id} value={teacher.id.toString()}>
-                            {teacher.firstName} {teacher.lastName}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                    <Label>{t("courses.teacher")}</Label>
+                    <div className="p-2 border rounded bg-muted/30 text-muted-foreground text-sm">
+                      {user?.firstName} {user?.lastName} (Asignación automática)
+                    </div>
                   </div>
                 </div>
 
@@ -480,8 +462,8 @@ export default function Courses() {
           <div className="flex items-center gap-2 text-sm text-muted-foreground">
             <span
               className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold ${quizStep === 1
-                  ? "bg-primary text-primary-foreground"
-                  : "bg-muted text-muted-foreground"
+                ? "bg-primary text-primary-foreground"
+                : "bg-muted text-muted-foreground"
                 }`}
             >
               1
@@ -490,8 +472,8 @@ export default function Courses() {
             <div className="flex-1 h-px bg-border" />
             <span
               className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold ${quizStep === 2
-                  ? "bg-primary text-primary-foreground"
-                  : "bg-muted text-muted-foreground"
+                ? "bg-primary text-primary-foreground"
+                : "bg-muted text-muted-foreground"
                 }`}
             >
               2
@@ -693,8 +675,8 @@ export default function Courses() {
                     <TableRow
                       key={course.id}
                       className={`border-b border-border/30 transition-colors ${isAdmin
-                          ? "hover:bg-primary/5 cursor-pointer"
-                          : "hover:bg-muted/50"
+                        ? "hover:bg-primary/5 cursor-pointer"
+                        : "hover:bg-muted/50"
                         }`}
                       onClick={(e) => handleRowClick(course, e)}
                     >
@@ -715,10 +697,10 @@ export default function Courses() {
                       <TableCell>
                         <span
                           className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${course.status === "active"
-                              ? "bg-green-100 text-green-800"
-                              : course.status === "inactive"
-                                ? "bg-gray-100 text-gray-800"
-                                : "bg-blue-100 text-blue-800"
+                            ? "bg-green-100 text-green-800"
+                            : course.status === "inactive"
+                              ? "bg-gray-100 text-gray-800"
+                              : "bg-blue-100 text-blue-800"
                             }`}
                         >
                           {course.status === "active"

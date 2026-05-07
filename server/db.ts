@@ -139,6 +139,13 @@ export async function getStudentByUserId(userId: number) {
   return result.length > 0 ? result[0] : undefined;
 }
 
+export async function getTeacherByUserId(userId: number) {
+  const db = await getDb();
+  if (!db) return undefined;
+  const result = await db.select().from(teachers).where(eq(teachers.idUser, userId)).limit(1);
+  return result.length > 0 ? result[0] : undefined;
+}
+
 export async function getCoursesByStudentId(studentId: number) {
   const db = await getDb();
   if (!db) return [];
@@ -300,6 +307,19 @@ export async function getCourses(limit = 50, offset = 0) {
   return await db
     .select()
     .from(courses)
+    .orderBy(desc(courses.createdAt))
+    .limit(limit)
+    .offset(offset);
+}
+
+export async function getCoursesByTeacherId(teacherId: number, { limit = 50, offset = 0 }: { limit?: number; offset?: number } = {}) {
+  const db = await getDb();
+  if (!db) return [];
+
+  return await db
+    .select()
+    .from(courses)
+    .where(eq(courses.teacherId, teacherId))
     .orderBy(desc(courses.createdAt))
     .limit(limit)
     .offset(offset);
