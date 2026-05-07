@@ -175,7 +175,7 @@ export async function createStudent(data: InsertStudent): Promise<Student> {
   }
 }
 
-export async function getStudents(limit = 50, offset = 0) {
+export async function getStudents(limit = 50, offset = 0, status?: "active" | "inactive" | "graduated") {
   const db = await getDb();
   if (!db) return [];
 
@@ -184,7 +184,8 @@ export async function getStudents(limit = 50, offset = 0) {
     .from(students)
     .orderBy(desc(students.createdAt))
     .limit(limit)
-    .offset(offset);
+    .offset(offset)
+    .where(status ? eq(students.status, status) : undefined);
 }
 
 export async function getStudentById(id: number): Promise<Student | undefined> {
@@ -396,11 +397,13 @@ export async function getEnrollmentById(id: number): Promise<Enrollment | undefi
   return result.length > 0 ? result[0] : undefined;
 }
 
-export async function getEnrollmentsByStudent(studentId: number) {
+export async function getEnrollmentsByStudent(studentId: number, status?: "enrolled" | "dropped") {
   const db = await getDb();
   if (!db) return [];
 
-  return await db.select().from(enrollments).where(eq(enrollments.studentId, studentId));
+  return await db.select()
+    .from(enrollments)
+    .where(status ? and(eq(enrollments.studentId, studentId), eq(enrollments.status, status)) : eq(enrollments.studentId, studentId));
 }
 
 export async function getEnrollmentsByCourse(courseId: number) {
@@ -410,7 +413,7 @@ export async function getEnrollmentsByCourse(courseId: number) {
   return await db.select().from(enrollments).where(eq(enrollments.courseId, courseId));
 }
 
-export async function getEnrollmentsByTeacher(teacherId: number, { limit = 50, offset = 0 }: { limit?: number; offset?: number } = {}) {
+export async function getEnrollmentsByTeacher(teacherId: number, { limit = 50, offset = 0, status }: { limit?: number; offset?: number; status?: "enrolled" | "dropped" } = {}) {
   const db = await getDb();
   if (!db) return [];
 
@@ -418,7 +421,7 @@ export async function getEnrollmentsByTeacher(teacherId: number, { limit = 50, o
     .select({ enrollment: enrollments })
     .from(enrollments)
     .innerJoin(courses, eq(enrollments.courseId, courses.id))
-    .where(eq(courses.teacherId, teacherId))
+    .where(status ? and(eq(courses.teacherId, teacherId), eq(enrollments.status, status)) : eq(courses.teacherId, teacherId))
     .orderBy(desc(enrollments.enrollmentDate))
     .limit(limit)
     .offset(offset);
@@ -465,13 +468,24 @@ export async function createGrade(data: InsertGrade): Promise<Grade> {
   return grade[0]!;
 }
 
-export async function getGrades(limit = 50, offset = 0) {
+export async function getGrades(limit = 50, offset = 0, teacherId?: number) {
   const db = await getDb();
   if (!db) return [];
 
   return await db
-    .select()
+    .select({
+      id: grades.id,
+      enrollmentId: grades.enrollmentId,
+      studentId: grades.studentId,
+      courseId: grades.courseId,
+      grade: grades.grade,
+      gradeType: grades.gradeType,
+      recordedDate: grades.recordedDate,
+    })
     .from(grades)
+    .innerJoin(courses, eq(grades.courseId, courses.id))
+    .innerJoin(teachers, eq(courses.teacherId, teachers.id))
+    .where(teacherId ? eq(teachers.id, teacherId) : undefined)
     .orderBy(desc(grades.recordedDate))
     .limit(limit)
     .offset(offset);

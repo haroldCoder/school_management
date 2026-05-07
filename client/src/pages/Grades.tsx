@@ -56,8 +56,8 @@ export default function Grades() {
 
   const utils = trpc.useUtils();
   const { data: grades, isLoading } = trpc.grades.list.useQuery({ limit: 100 });
-  const { data: enrollments } = trpc.enrollments.list.useQuery({ limit: 100 });
-  const { data: students } = trpc.students.list.useQuery({ limit: 100 });
+  const { data: enrollments } = trpc.enrollments.list.useQuery({ limit: 100, status: "enrolled" });
+  const { data: students } = trpc.students.list.useQuery({ limit: 100, status: "active" });
   const { data: courses } = trpc.courses.list.useQuery({ limit: 100 });
 
   const createMutation = trpc.grades.create.useMutation({
@@ -298,7 +298,7 @@ export default function Grades() {
                     <TableRow key={grade.id} className="border-b border-border/30 hover:bg-muted/50">
                       <TableCell className="font-medium">{getStudentName(grade.studentId)}</TableCell>
                       <TableCell>{getCourseName(grade.courseId)}</TableCell>
-                      <TableCell className={getGradeColor(grade.grade) + " font-semibold"}>{grade.grade}</TableCell>
+                      <TableCell className={getGradeColor(grade.grade) + " font-semibold"}>{Number(grade.grade).toFixed(1)}</TableCell>
                       <TableCell>{getGradeTypeLabel(grade.gradeType)}</TableCell>
                       <TableCell className="text-muted-foreground">
                         {new Date(grade.recordedDate).toLocaleDateString("es-ES")}

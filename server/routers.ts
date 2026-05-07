@@ -236,9 +236,9 @@ export const appRouter = router({
   students: router({
     // Only admins can list all students
     list: adminProcedure
-      .input(z.object({ limit: z.number().default(50), offset: z.number().default(0) }))
+      .input(z.object({ limit: z.number().default(50), offset: z.number().default(0), status: z.enum(["active", "inactive", "graduated"]).optional() }))
       .query(async ({ input }) => {
-        return await getStudents(input.limit, input.offset);
+        return await getStudents(input.limit, input.offset, input.status);
       }),
 
     // Get the current student's own profile
@@ -455,14 +455,14 @@ export const appRouter = router({
   // ============ ENROLLMENTS ============
   enrollments: router({
     list: protectedProcedure
-      .input(z.object({ limit: z.number().default(50), offset: z.number().default(0) }))
+      .input(z.object({ limit: z.number().default(50), offset: z.number().default(0), status: z.enum(["enrolled", "dropped"]).optional() }))
       .query(async ({ input, ctx }) => {
         if (ctx.user.role === "user") {
           const student = await getStudentByUserId(ctx.user.id);
           if (!student) throw new TRPCError({ code: "NOT_FOUND", message: "Estudiante no encontrado" });
-          return await getEnrollmentsByStudent(student.id);
+          return await getEnrollmentsByStudent(student.id, input.status);
         }
-        
+
         const teacher = await getTeacherByUserId(ctx.user.id);
         if (!teacher) return [];
         return await getEnrollmentsByTeacher(teacher.id, input);
@@ -521,7 +521,9 @@ export const appRouter = router({
           if (!student) return [];
           return await getGradesByStudent(student.id);
         }
-        return await getGrades(input.limit, input.offset);
+        const teacher = await getTeacherByUserId(ctx.user.id);
+        if (!teacher) return [];
+        return await getGrades(input.limit, input.offset, teacher.id);
       }),
 
     getById: protectedProcedure.input(z.object({ id: z.number() })).query(async ({ input }) => {
