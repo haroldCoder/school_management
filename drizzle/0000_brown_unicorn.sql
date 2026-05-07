@@ -1,8 +1,8 @@
 CREATE TABLE `users` (
 	`id` int AUTO_INCREMENT NOT NULL,
 	`openId` varchar(64) NOT NULL,
-	`name` text,
-	`email` varchar(320),
+	`username` varchar(64),
+	`password` varchar(64),
 	`loginMethod` varchar(64),
 	`role` enum('user','admin') NOT NULL DEFAULT 'user',
 	`createdAt` timestamp NOT NULL DEFAULT (now()),

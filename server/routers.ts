@@ -6,7 +6,6 @@ import { z } from "zod";
 import { TRPCError } from "@trpc/server";
 import { hashPassword, verifyPassword } from "./_core/hash";
 import { sdk } from "./_core/sdk";
-import { ENV } from "./_core/env";
 import {
   createUser,
   createStudent,
@@ -59,6 +58,8 @@ import {
   getStudentAnswer,
   updateStudentAnswer,
   getQuestionAnswers,
+  upsertUser,
+  updateUser,
 } from "./db";
 
 // Admin-only procedure
@@ -86,7 +87,8 @@ export const appRouter = router({
         z.object({
           username: z.string().min(3),
           password: z.string().min(6),
-          name: z.string().optional(),
+          firstName: z.string().optional(),
+          lastName: z.string().optional(),
           email: z.string().email().optional(),
         })
       )
@@ -100,15 +102,24 @@ export const appRouter = router({
         const user = await createUser({
           username: input.username,
           password: hashedPassword,
-          name: input.name || input.username,
-          email: input.email || null,
-          role: input.username === ENV.ownerOpenId ? "admin" : "user", // Keep owner as admin
+          role: "admin",
+          loginMethod: "local",
           lastSignedIn: new Date(),
           openId: input.username, // Maintain compatibility
         });
 
+        const teacher = await createTeacher({
+          firstName: input.firstName || "",
+          lastName: input.lastName || "",
+          employeeNumber: input.username,
+          email: input.email,
+          hireDate: new Date(),
+          status: "active",
+          idUser: user.id,
+        });
+
         const sessionToken = await sdk.createSessionToken(user.openId!, {
-          name: user.name || user.username!,
+          name: teacher.firstName + " " + teacher.lastName || input.username,
           expiresInMs: ONE_YEAR_MS,
         });
 
@@ -131,7 +142,7 @@ export const appRouter = router({
         }
 
         const sessionToken = await sdk.createSessionToken(user.openId!, {
-          name: user.name || user.username!,
+          name: user.username!,
           expiresInMs: ONE_YEAR_MS,
         });
 
@@ -194,10 +205,25 @@ export const appRouter = router({
           zipCode: z.string().optional(),
           enrollmentNumber: z.string().optional(),
           status: z.enum(["active", "inactive", "graduated"]).default("active"),
+          password: z.string(),
         })
       )
       .mutation(async ({ input }) => {
-        return await createStudent(input);
+        const hashedPassword = hashPassword(input.password);
+        const user = await createUser({
+          username: input.firstName,
+          password: hashedPassword,
+          role: "user",
+          lastSignedIn: new Date(),
+          openId: input.enrollmentNumber,
+        });
+
+        const student = await createStudent({
+          ...input,
+          idUser: user.id,
+        });
+
+        return student;
       }),
 
     update: adminProcedure
@@ -213,12 +239,25 @@ export const appRouter = router({
           city: z.string().optional(),
           state: z.string().optional(),
           zipCode: z.string().optional(),
+          password: z.string().optional(),
           enrollmentNumber: z.string().optional(),
           status: z.enum(["active", "inactive", "graduated"]).optional(),
         })
       )
       .mutation(async ({ input }) => {
-        const { id, ...data } = input;
+        const { id, password, ...data } = input;
+        const student = await getStudentById(id);
+        if (!student) throw new Error("Student not found");
+        if (student.idUser) {
+
+          const hashedPassword = password ? hashPassword(password) : undefined;
+          await updateUser(student.idUser, {
+            username: data.firstName,
+            ...(hashedPassword && { password: hashedPassword }),
+            lastSignedIn: new Date(),
+          });
+        }
+
         return await updateStudent(id, data);
       }),
 
@@ -239,23 +278,6 @@ export const appRouter = router({
     getById: protectedProcedure.input(z.object({ id: z.number() })).query(async ({ input }) => {
       return await getTeacherById(input.id);
     }),
-
-    create: adminProcedure
-      .input(
-        z.object({
-          firstName: z.string().min(1),
-          lastName: z.string().min(1),
-          email: z.string().email().optional(),
-          phone: z.string().optional(),
-          specialization: z.string().optional(),
-          employeeNumber: z.string().optional(),
-          hireDate: z.date().optional(),
-          status: z.enum(["active", "inactive", "on_leave"]).default("active"),
-        })
-      )
-      .mutation(async ({ input }) => {
-        return await createTeacher(input);
-      }),
 
     update: adminProcedure
       .input(

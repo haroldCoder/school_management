@@ -47,12 +47,13 @@ export default function Auth() {
         const formData = new FormData(e.currentTarget);
         const username = formData.get("username") as string;
         const password = formData.get("password") as string;
-        const name = formData.get("name") as string;
+        const firstName = formData.get("firstName") as string;
+        const lastName = formData.get("lastName") as string;
         const email = formData.get("email") as string;
 
         setIsSubmitting(true);
         try {
-            await register({ username, password, name, email });
+            await register({ username, password, firstName, lastName, email });
             toast.success("Cuenta creada exitosamente");
             setLocation("/dashboard");
         } catch (error: any) {
@@ -119,8 +120,12 @@ export default function Auth() {
                             <form onSubmit={handleRegister}>
                                 <CardContent className="space-y-4">
                                     <div className="space-y-2">
-                                        <Label htmlFor="reg-name">Nombre Completo</Label>
-                                        <Input id="reg-name" name="name" placeholder="Ej: Juan Pérez" required />
+                                        <Label htmlFor="reg-name">Nombre</Label>
+                                        <Input id="reg-name" name="firstName" placeholder="Ej: Juan" required />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label htmlFor="reg-name">Apellido</Label>
+                                        <Input id="reg-name" name="lastName" placeholder="Ej: Pérez" required />
                                     </div>
                                     <div className="space-y-2">
                                         <Label htmlFor="reg-email">Correo Electrónico</Label>

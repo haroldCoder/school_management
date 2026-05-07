@@ -27,6 +27,7 @@ import {
   studentAnswers,
   InsertStudentAnswer,
   StudentAnswer,
+  User,
 } from "../drizzle/schema";
 import { ENV } from "./_core/env";
 
@@ -55,7 +56,7 @@ export async function upsertUser(user: InsertUser): Promise<void> {
     const values: InsertUser = { ...user };
     const updateSet: Record<string, unknown> = {};
 
-    const fields = ["name", "email", "loginMethod", "username", "password", "role"] as const;
+    const fields = ["loginMethod", "username", "password", "role"] as const;
     fields.forEach((field) => {
       if (user[field] !== undefined) {
         updateSet[field] = user[field] ?? null;
@@ -103,24 +104,50 @@ export async function getUserByUsername(username: string) {
 }
 
 export async function createUser(data: InsertUser) {
+  try {
+    const db = await getDb();
+    if (!db) throw new Error("Database not available");
+    const result = await db.insert(users).values(data);
+    const id = result[0].insertId;
+    const user = await db.select().from(users).where(eq(users.id, id as number)).limit(1);
+    return user[0]!;
+  }
+  catch (error) {
+    console.error("[Database] Failed to create user:", error);
+    throw error;
+  }
+}
+
+export async function updateUser(id: number, data: InsertUser) {
   const db = await getDb();
-  if (!db) throw new Error("Database not available");
-  const result = await db.insert(users).values(data);
-  const id = result[0].insertId;
-  const user = await db.select().from(users).where(eq(users.id, id as number)).limit(1);
-  return user[0]!;
+  if (!db) return undefined;
+  try {
+    await db.update(users).set(data).where(eq(users.id, id));
+    const user = await db.select().from(users).where(eq(users.id, id)).limit(1);
+    return user[0]!;
+  }
+  catch (error) {
+    console.error("[Database] Failed to update user:", error);
+    throw error;
+  }
 }
 
 // ============ STUDENTS ============
 
 export async function createStudent(data: InsertStudent): Promise<Student> {
-  const db = await getDb();
-  if (!db) throw new Error("Database not available");
+  try {
+    const db = await getDb();
+    if (!db) throw new Error("Database not available");
 
-  const result = await db.insert(students).values(data);
-  const id = result[0].insertId;
-  const student = await db.select().from(students).where(eq(students.id, id as number)).limit(1);
-  return student[0]!;
+    const result = await db.insert(students).values(data);
+    const id = result[0].insertId;
+    const student = await db.select().from(students).where(eq(students.id, id as number)).limit(1);
+    return student[0]!;
+  }
+  catch (error) {
+    console.error("[Database] Failed to create student:", error);
+    throw error;
+  }
 }
 
 export async function getStudents(limit = 50, offset = 0) {
@@ -173,13 +200,20 @@ export async function getStudentCount(): Promise<number> {
 // ============ TEACHERS ============
 
 export async function createTeacher(data: InsertTeacher): Promise<Teacher> {
-  const db = await getDb();
-  if (!db) throw new Error("Database not available");
+  try {
 
-  const result = await db.insert(teachers).values(data);
-  const id = result[0].insertId;
-  const teacher = await db.select().from(teachers).where(eq(teachers.id, id as number)).limit(1);
-  return teacher[0]!;
+    const db = await getDb();
+    if (!db) throw new Error("Database not available");
+
+    const result = await db.insert(teachers).values(data);
+    const id = result[0].insertId;
+    const teacher = await db.select().from(teachers).where(eq(teachers.id, id as number)).limit(1);
+    return teacher[0]!;
+  }
+  catch (error) {
+    console.error("[Database] Failed to create teacher:", error);
+    throw error;
+  }
 }
 
 export async function getTeachers(limit = 50, offset = 0) {

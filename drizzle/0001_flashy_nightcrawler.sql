@@ -53,12 +53,14 @@ CREATE TABLE `students` (
 	`state` varchar(100),
 	`zipCode` varchar(20),
 	`enrollmentNumber` varchar(50),
+	`user_id` int,
 	`status` enum('active','inactive','graduated') DEFAULT 'active',
 	`createdAt` timestamp NOT NULL DEFAULT (now()),
 	`updatedAt` timestamp NOT NULL DEFAULT (now()) ON UPDATE CURRENT_TIMESTAMP,
 	CONSTRAINT `students_id` PRIMARY KEY(`id`),
 	CONSTRAINT `students_email_unique` UNIQUE(`email`),
-	CONSTRAINT `students_enrollmentNumber_unique` UNIQUE(`enrollmentNumber`)
+	CONSTRAINT `students_enrollmentNumber_unique` UNIQUE(`enrollmentNumber`),
+	CONSTRAINT `students_user_id_users_id_fk` FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON DELETE cascade ON UPDATE no action
 );
 --> statement-breakpoint
 CREATE TABLE `teachers` (
@@ -70,12 +72,14 @@ CREATE TABLE `teachers` (
 	`specialization` varchar(200),
 	`employeeNumber` varchar(50),
 	`hireDate` timestamp,
+	`user_id` int,
 	`status` enum('active','inactive','on_leave') DEFAULT 'active',
 	`createdAt` timestamp NOT NULL DEFAULT (now()),
 	`updatedAt` timestamp NOT NULL DEFAULT (now()) ON UPDATE CURRENT_TIMESTAMP,
 	CONSTRAINT `teachers_id` PRIMARY KEY(`id`),
 	CONSTRAINT `teachers_email_unique` UNIQUE(`email`),
-	CONSTRAINT `teachers_employeeNumber_unique` UNIQUE(`employeeNumber`)
+	CONSTRAINT `teachers_employeeNumber_unique` UNIQUE(`employeeNumber`),
+	CONSTRAINT `teachers_user_id_users_id_fk` FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON DELETE cascade ON UPDATE no action
 );
 --> statement-breakpoint
 ALTER TABLE `users` MODIFY COLUMN `role` enum('admin','user') NOT NULL DEFAULT 'user';--> statement-breakpoint

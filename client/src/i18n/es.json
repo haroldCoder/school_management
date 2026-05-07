@@ -72,7 +72,8 @@
     "editStudent": "Editar Alumno",
     "deleteStudent": "Eliminar Alumno",
     "studentDetails": "Detalles del Alumno",
-    "noStudents": "No hay alumnos registrados"
+    "noStudents": "No hay alumnos registrados",
+    "password": "Contraseña"
   },
   "teachers": {
     "title": "Gestión de Profesores",

@@ -19,13 +19,9 @@ export const users = mysqlTable("users", {
   id: int("id").autoincrement().primaryKey(),
   openId: varchar("openId", { length: 64 }).unique(), // Made nullable to transition to local auth
   username: varchar("username", { length: 64 }).unique(),
-  password: text("password"),
-  name: text("name"),
-  email: varchar("email", { length: 320 }).unique(),
-  loginMethod: varchar("loginMethod", { length: 64 }),
+  password: varchar("password", { length: 255 }),
+  loginMethod: varchar("loginMethod", { length: 64 }).default("local").notNull(),
   role: mysqlEnum("role", ["admin", "user"]).default("user").notNull(),
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
-  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
   lastSignedIn: timestamp("lastSignedIn").defaultNow().notNull(),
 });
 
@@ -50,6 +46,7 @@ export const students = mysqlTable(
     zipCode: varchar("zipCode", { length: 20 }),
     enrollmentNumber: varchar("enrollmentNumber", { length: 50 }).unique(),
     status: mysqlEnum("status", ["active", "inactive", "graduated"]).default("active"),
+    idUser: int("user_id").unique().notNull().references(() => users.id),
     createdAt: timestamp("createdAt").defaultNow().notNull(),
     updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
   },
@@ -74,6 +71,7 @@ export const teachers = mysqlTable(
     employeeNumber: varchar("employeeNumber", { length: 50 }).unique(),
     hireDate: timestamp("hireDate"),
     status: mysqlEnum("status", ["active", "inactive", "on_leave"]).default("active"),
+    idUser: int("idUser").unique().notNull().references(() => users.id),
     createdAt: timestamp("createdAt").defaultNow().notNull(),
     updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
   },

@@ -44,6 +44,7 @@ interface StudentFormData {
   zipCode: string;
   enrollmentNumber: string;
   status: "active" | "inactive" | "graduated";
+  password: string;
 }
 
 export default function Students() {
@@ -64,6 +65,7 @@ export default function Students() {
     zipCode: "",
     enrollmentNumber: "",
     status: "active",
+    password: ""
   });
 
   const utils = trpc.useUtils();
@@ -137,6 +139,7 @@ export default function Students() {
       zipCode: "",
       enrollmentNumber: "",
       status: "active",
+      password: ""
     });
     setEditingId(null);
   };
@@ -156,6 +159,7 @@ export default function Students() {
       zipCode: formData.zipCode || undefined,
       enrollmentNumber: formData.enrollmentNumber || undefined,
       status: formData.status,
+      password: formData.password
     };
 
     if (editingId) {
@@ -178,6 +182,7 @@ export default function Students() {
       zipCode: student.zipCode || "",
       enrollmentNumber: student.enrollmentNumber || "",
       status: student.status,
+      password: student.password || ""
     });
     setEditingId(student.id);
     setOpen(true);
@@ -239,6 +244,15 @@ export default function Students() {
                       type="email"
                       value={formData.email}
                       onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="password">{t("students.password")}</Label>
+                    <Input
+                      id="password"
+                      type="password"
+                      value={formData.password}
+                      onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                     />
                   </div>
                   <div>
