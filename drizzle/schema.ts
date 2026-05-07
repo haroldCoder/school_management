@@ -71,7 +71,7 @@ export const teachers = mysqlTable(
     employeeNumber: varchar("employeeNumber", { length: 50 }).unique(),
     hireDate: timestamp("hireDate"),
     status: mysqlEnum("status", ["active", "inactive", "on_leave"]).default("active"),
-    idUser: int("idUser").unique().notNull().references(() => users.id),
+    idUser: int("user_id").unique().notNull().references(() => users.id),
     createdAt: timestamp("createdAt").defaultNow().notNull(),
     updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
   },
