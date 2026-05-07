@@ -60,10 +60,10 @@ import {
   getStudentAnswer,
   updateStudentAnswer,
   getQuestionAnswers,
-  upsertUser,
   updateUser,
   getTeacherByUserId,
   getCoursesByTeacherId,
+  getEnrollmentsByTeacher,
 } from "./db";
 
 // Admin-only procedure
@@ -456,8 +456,16 @@ export const appRouter = router({
   enrollments: router({
     list: protectedProcedure
       .input(z.object({ limit: z.number().default(50), offset: z.number().default(0) }))
-      .query(async ({ input }) => {
-        return await getEnrollments(input.limit, input.offset);
+      .query(async ({ input, ctx }) => {
+        if (ctx.user.role === "user") {
+          const student = await getStudentByUserId(ctx.user.id);
+          if (!student) throw new TRPCError({ code: "NOT_FOUND", message: "Estudiante no encontrado" });
+          return await getEnrollmentsByStudent(student.id);
+        }
+        
+        const teacher = await getTeacherByUserId(ctx.user.id);
+        if (!teacher) return [];
+        return await getEnrollmentsByTeacher(teacher.id, input);
       }),
 
     getById: protectedProcedure.input(z.object({ id: z.number() })).query(async ({ input }) => {

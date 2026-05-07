@@ -31,6 +31,7 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Plus, Edit2, Trash2, Loader2 } from "lucide-react";
 import { toast } from "sonner";
+import { getGradeColor } from "@/lib/utils";
 
 interface GradeFormData {
   enrollmentId: string;
@@ -297,7 +298,7 @@ export default function Grades() {
                     <TableRow key={grade.id} className="border-b border-border/30 hover:bg-muted/50">
                       <TableCell className="font-medium">{getStudentName(grade.studentId)}</TableCell>
                       <TableCell>{getCourseName(grade.courseId)}</TableCell>
-                      <TableCell className="font-semibold">{grade.grade}</TableCell>
+                      <TableCell className={getGradeColor(grade.grade) + " font-semibold"}>{grade.grade}</TableCell>
                       <TableCell>{getGradeTypeLabel(grade.gradeType)}</TableCell>
                       <TableCell className="text-muted-foreground">
                         {new Date(grade.recordedDate).toLocaleDateString("es-ES")}

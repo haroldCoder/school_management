@@ -193,7 +193,7 @@ export default function Enrollments() {
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
                   <Label htmlFor="studentId">{t("enrollments.student")} *</Label>
-                  <Select value={formData.studentId} onValueChange={(value) => setFormData({ ...formData, studentId: value })}>
+                  <Select required value={formData.studentId} onValueChange={(value) => setFormData({ ...formData, studentId: value })}>
                     <SelectTrigger id="studentId">
                       <SelectValue placeholder="Seleccionar alumno" />
                     </SelectTrigger>
@@ -209,7 +209,7 @@ export default function Enrollments() {
 
                 <div>
                   <Label htmlFor="courseId">{t("enrollments.course")} *</Label>
-                  <Select value={formData.courseId} onValueChange={(value) => setFormData({ ...formData, courseId: value })}>
+                  <Select required value={formData.courseId} onValueChange={(value) => setFormData({ ...formData, courseId: value })}>
                     <SelectTrigger id="courseId">
                       <SelectValue placeholder="Seleccionar curso" />
                     </SelectTrigger>

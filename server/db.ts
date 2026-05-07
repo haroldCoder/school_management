@@ -376,7 +376,7 @@ export async function createEnrollment(data: InsertEnrollment): Promise<Enrollme
   return enrollment[0]!;
 }
 
-export async function getEnrollments(limit = 50, offset = 0) {
+export async function getEnrollments({ courseId, limit = 50, offset = 0, studentId }: { courseId?: number, limit?: number; offset?: number; studentId?: number }) {
   const db = await getDb();
   if (!db) return [];
 
@@ -408,6 +408,22 @@ export async function getEnrollmentsByCourse(courseId: number) {
   if (!db) return [];
 
   return await db.select().from(enrollments).where(eq(enrollments.courseId, courseId));
+}
+
+export async function getEnrollmentsByTeacher(teacherId: number, { limit = 50, offset = 0 }: { limit?: number; offset?: number } = {}) {
+  const db = await getDb();
+  if (!db) return [];
+
+  const result = await db
+    .select({ enrollment: enrollments })
+    .from(enrollments)
+    .innerJoin(courses, eq(enrollments.courseId, courses.id))
+    .where(eq(courses.teacherId, teacherId))
+    .orderBy(desc(enrollments.enrollmentDate))
+    .limit(limit)
+    .offset(offset);
+
+  return result.map((r) => r.enrollment);
 }
 
 export async function updateEnrollment(id: number, data: Partial<InsertEnrollment>): Promise<Enrollment | undefined> {
