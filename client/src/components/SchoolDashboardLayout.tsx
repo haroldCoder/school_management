@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { useAuth } from "@/_core/hooks/useAuth";
-import { useI18n } from "@/hooks/useI18n";
+import { useAuth } from "@common/hooks";
+import { useI18n } from "@common/hooks";
 import { useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import {

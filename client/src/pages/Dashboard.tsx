@@ -1,6 +1,6 @@
-import { useI18n } from "@/hooks/useI18n";
+import { useI18n } from "@common/hooks";
 import { trpc } from "@/lib/trpc";
-import { useAuth } from "@/_core/hooks/useAuth";
+import { useAuth } from "@common/hooks";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Users, BookOpen, GraduationCap, ClipboardList, BarChart3 } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";

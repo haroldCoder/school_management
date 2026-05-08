@@ -3,7 +3,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import NotFound from "@/pages/NotFound";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
-import { useAuth } from "@/_core/hooks/useAuth";
+import { useAuth } from "@common/hooks";
 import { SchoolDashboardLayout } from "@/components/SchoolDashboardLayout";
 import Dashboard from "@/pages/Dashboard";
 import Students from "@/pages/Students";

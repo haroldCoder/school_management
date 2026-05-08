@@ -1,7 +1,7 @@
 import { useState } from "react";
-import { useI18n } from "@/hooks/useI18n";
+import { useI18n } from "@common/hooks";
 import { trpc } from "@/lib/trpc";
-import { useAuth } from "@/_core/hooks/useAuth";
+import { useAuth } from "@common/hooks";
 import { useLocation } from "wouter";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -612,11 +612,10 @@ export default function CourseDetail() {
                         <TableCell>-</TableCell>
                         <TableCell>-</TableCell>
                         <TableCell>
-                          <span className={`px-2 py-1 rounded text-xs font-medium ${
-                            enrollment.status === "enrolled"
-                              ? "bg-green-100 text-green-800"
-                              : "bg-gray-100 text-gray-800"
-                          }`}>
+                          <span className={`px-2 py-1 rounded text-xs font-medium ${enrollment.status === "enrolled"
+                            ? "bg-green-100 text-green-800"
+                            : "bg-gray-100 text-gray-800"
+                            }`}>
                             {enrollment.status === "enrolled" ? "Inscrito" : enrollment.status}
                           </span>
                         </TableCell>

@@ -1,4 +1,4 @@
-import { useI18n } from "@/hooks/useI18n";
+import { useI18n } from "@common/hooks";
 import { trpc } from "@/lib/trpc";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
