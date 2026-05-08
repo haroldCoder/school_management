@@ -43,6 +43,9 @@
       ],
       "@auth/*": [
         "./client/src/features/auth/*"
+      ],
+      "@dashboard/*": [
+        "./client/src/features/dashboard/*"
       ]
     }
   }

@@ -5,7 +5,7 @@ import ErrorBoundary from "./components/ErrorBoundary";
 import { ThemeProvider } from "@common/contexts";
 import { useAuth } from "@common/hooks";
 import { SchoolDashboardLayout } from "@/components/SchoolDashboardLayout";
-import Dashboard from "@/pages/Dashboard";
+import Dashboard from "@/pages/dashboard";
 import Students from "@/pages/Students";
 import Teachers from "@/pages/Teachers";
 import Courses from "@/pages/Courses";
