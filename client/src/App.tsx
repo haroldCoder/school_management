@@ -6,7 +6,7 @@ import { ThemeProvider } from "@common/contexts";
 import { useAuth } from "@common/hooks";
 import { SchoolDashboardLayout } from "@/components/SchoolDashboardLayout";
 import Dashboard from "@/pages/dashboard";
-import Students from "@/pages/Students";
+import Students from "@/pages/students";
 import Teachers from "@/pages/Teachers";
 import Courses from "@/pages/Courses";
 import Enrollments from "@/pages/Enrollments";

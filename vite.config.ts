@@ -188,6 +188,7 @@ export default defineConfig({
       "@common": path.resolve(import.meta.dirname, "client/src/common"),
       "@auth": path.resolve(import.meta.dirname, "client/src/features/auth"),
       "@dashboard": path.resolve(import.meta.dirname, "client/src/features/dashboard"),
+      "@students": path.resolve(import.meta.dirname, "client/src/features/students"),
     },
   },
   envDir: path.resolve(import.meta.dirname),
