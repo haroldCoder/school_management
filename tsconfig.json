@@ -44,6 +44,12 @@
       "@auth/*": [
         "./client/src/features/auth/*"
       ],
+      "@reports/*": [
+        "./client/src/features/reports/*"
+      ],
+      "@enrollments/*": [
+        "./client/src/features/enrollments/*"
+      ],
       "@dashboard/*": [
         "./client/src/features/dashboard/*"
       ],
