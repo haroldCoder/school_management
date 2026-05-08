@@ -190,6 +190,7 @@ export default defineConfig({
       "@dashboard": path.resolve(import.meta.dirname, "client/src/features/dashboard"),
       "@students": path.resolve(import.meta.dirname, "client/src/features/students"),
       "@teachers": path.resolve(import.meta.dirname, "client/src/features/teachers"),
+      "@courses": path.resolve(import.meta.dirname, "client/src/features/courses"),
     },
   },
   envDir: path.resolve(import.meta.dirname),

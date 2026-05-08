@@ -592,13 +592,18 @@ export async function deleteMaterial(id: number): Promise<boolean> {
 // ============ QUESTIONS ============
 
 export async function createQuestion(data: InsertQuestion): Promise<Question> {
-  const db = await getDb();
-  if (!db) throw new Error("Database not available");
+  try {
+    const db = await getDb();
+    if (!db) throw new Error("Database not available");
 
-  const result = await db.insert(questions).values(data);
-  const id = result[0].insertId;
-  const question = await db.select().from(questions).where(eq(questions.id, id as number)).limit(1);
-  return question[0]!;
+    const result = await db.insert(questions).values(data);
+    const id = result[0].insertId;
+    const question = await db.select().from(questions).where(eq(questions.id, id as number)).limit(1);
+    return question[0]!;
+  } catch (error) {
+    console.error("Error al crear pregunta:", error);
+    throw error;
+  }
 }
 
 export async function getQuestions(courseId: number, limit = 50, offset = 0) {

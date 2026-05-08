@@ -52,6 +52,9 @@
       ],
       "@teachers/*": [
         "./client/src/features/teachers/*"
+      ],
+      "@courses/*": [
+        "./client/src/features/courses/*"
       ]
     }
   }
