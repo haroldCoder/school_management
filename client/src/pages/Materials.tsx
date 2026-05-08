@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useI18n } from "@common/hooksuseI18n";
-import { trpc } from "@/lib/trpc";
+import { trpc } from "@common/utils";
 import { useAuth } from "@common/hooks";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";

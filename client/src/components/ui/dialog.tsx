@@ -1,4 +1,4 @@
-import { cn } from "@/lib/utils";
+import { cn } from "@common/utils";
 import * as DialogPrimitive from "@radix-ui/react-dialog";
 import { XIcon } from "lucide-react";
 import * as React from "react";
@@ -11,9 +11,9 @@ const DialogCompositionContext = React.createContext<{
   markCompositionEnd: () => void;
 }>({
   isComposing: () => false,
-  setComposing: () => {},
+  setComposing: () => { },
   justEndedComposing: () => false,
-  markCompositionEnd: () => {},
+  markCompositionEnd: () => { },
 });
 
 export const useDialogComposition = () =>

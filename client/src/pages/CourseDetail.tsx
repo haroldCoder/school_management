@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useI18n } from "@common/hooks";
-import { trpc } from "@/lib/trpc";
+import { trpc } from "@common/utils";
 import { useAuth } from "@common/hooks";
 import { useLocation } from "wouter";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";

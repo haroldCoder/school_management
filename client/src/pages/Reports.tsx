@@ -1,5 +1,5 @@
 import { useI18n } from "@common/hooks";
-import { trpc } from "@/lib/trpc";
+import { trpc } from "@common/utils";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { FileDown, Loader2 } from "lucide-react";

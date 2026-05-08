@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useI18n } from "@common/hooks";
-import { trpc } from "@/lib/trpc";
+import { trpc } from "@common/utils";
 import { useAuth } from "@common/hooks";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -31,7 +31,7 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Plus, Edit2, Trash2, Loader2 } from "lucide-react";
 import { toast } from "sonner";
-import { getGradeColor } from "@/lib/utils";
+import { getGradeColor } from "@common/utils";
 
 interface GradeFormData {
   enrollmentId: string;

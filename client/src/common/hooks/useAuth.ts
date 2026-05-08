@@ -1,5 +1,5 @@
 import { getLoginUrl } from "@/const";
-import { trpc } from "@/lib/trpc";
+import { trpc } from "@common/utils";
 import { useCallback, useEffect, useMemo } from "react";
 
 type UseAuthOptions = {
