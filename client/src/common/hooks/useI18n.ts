@@ -1,5 +1,5 @@
 import { useMemo } from "react";
-import es from "@/i18n/es.json";
+import es from "@common/i18n/es.json";
 
 type TranslationKey = string;
 
