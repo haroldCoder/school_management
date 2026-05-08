@@ -1,5 +1,5 @@
 import { useState, FormEvent } from "react";
-import { useCourseQuery } from "./use-course-query";
+import { useCourseQuery } from "./courses-query";
 import { useCourseMutations } from "./use-course-mutations";
 import { useQuizController } from "./use-quiz-controller";
 import { useAuth } from "@common/hooks";

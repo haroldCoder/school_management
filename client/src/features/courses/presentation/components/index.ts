@@ -4,3 +4,6 @@ export * from "./quiz-dialog";
 export * from "./step-indicator";
 export * from "./step-quiz-info";
 export * from "./step-questions";
+export * from "./detail/materials-tab";
+export * from "./detail/questions-tab";
+export * from "./detail/students-tab";

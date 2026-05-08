@@ -543,13 +543,19 @@ export async function deleteGrade(id: number): Promise<boolean> {
 // ============ MATERIALS ============
 
 export async function createMaterial(data: InsertMaterial): Promise<Material> {
-  const db = await getDb();
-  if (!db) throw new Error("Database not available");
+  try {
+    const db = await getDb();
+    if (!db) throw new Error("Database not available");
 
-  const result = await db.insert(materials).values(data);
-  const id = result[0].insertId;
-  const material = await db.select().from(materials).where(eq(materials.id, id as number)).limit(1);
-  return material[0]!;
+    const result = await db.insert(materials).values(data);
+    const id = result[0].insertId;
+    const material = await db.select().from(materials).where(eq(materials.id, id as number)).limit(1);
+    return material[0]!;
+  }
+  catch (error) {
+    console.error("Error al crear material:", error);
+    throw error;
+  }
 }
 
 export async function getMaterials(courseId: number, limit = 50, offset = 0) {
@@ -646,13 +652,18 @@ export async function deleteQuestion(id: number): Promise<boolean> {
 // ============ STUDENT ANSWERS ============
 
 export async function submitAnswer(data: InsertStudentAnswer): Promise<StudentAnswer> {
-  const db = await getDb();
-  if (!db) throw new Error("Database not available");
+  try {
+    const db = await getDb();
+    if (!db) throw new Error("Database not available");
 
-  const result = await db.insert(studentAnswers).values(data);
-  const id = result[0].insertId;
-  const answer = await db.select().from(studentAnswers).where(eq(studentAnswers.id, id as number)).limit(1);
-  return answer[0]!;
+    const result = await db.insert(studentAnswers).values(data);
+    const id = result[0].insertId;
+    const answer = await db.select().from(studentAnswers).where(eq(studentAnswers.id, id as number)).limit(1);
+    return answer[0]!;
+  } catch (error) {
+    console.error("Error al enviar respuesta:", error);
+    throw error;
+  }
 }
 
 export async function getStudentAnswers(studentId: number, courseId: number, limit = 50, offset = 0) {

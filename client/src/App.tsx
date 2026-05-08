@@ -12,7 +12,7 @@ import Courses from "@/pages/courses";
 import Enrollments from "@/pages/Enrollments";
 import Grades from "@/pages/Grades";
 import Reports from "@/pages/Reports";
-import CourseDetail from "@/pages/CourseDetail";
+import CourseDetail from "@/pages/course-detail";
 import Home from "@/pages/home";
 import Settings from "@/pages/Settings";
 import Auth from "@/pages/auth";
