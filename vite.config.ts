@@ -186,6 +186,7 @@ export default defineConfig({
       "@shared": path.resolve(import.meta.dirname, "shared"),
       "@assets": path.resolve(import.meta.dirname, "attached_assets"),
       "@common": path.resolve(import.meta.dirname, "client/src/common"),
+      "@auth": path.resolve(import.meta.dirname, "client/src/features/auth"),
     },
   },
   envDir: path.resolve(import.meta.dirname),
