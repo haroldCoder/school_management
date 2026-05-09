@@ -30,7 +30,6 @@ import {
   deleteCourse,
   getCourseCount,
   createEnrollment,
-  getEnrollments,
   getEnrollmentById,
   getEnrollmentsByStudent,
   getEnrollmentsByCourse,
@@ -234,8 +233,7 @@ export const appRouter = router({
 
   // ============ STUDENTS ============
   students: router({
-    // Only admins can list all students
-    list: adminProcedure
+    list: protectedProcedure
       .input(z.object({ limit: z.number().default(50), offset: z.number().default(0), status: z.enum(["active", "inactive", "graduated"]).optional() }))
       .query(async ({ input }) => {
         return await getStudents(input.limit, input.offset, input.status);
