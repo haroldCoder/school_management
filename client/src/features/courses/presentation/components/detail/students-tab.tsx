@@ -7,12 +7,13 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { EnrollmentEntity } from "@enrollments/domain/entities";
 
-export const StudentsTab = ({ controller }: { controller: any }) => {
+export const StudentsTab = ({ enrollments }: { enrollments: EnrollmentEntity[] }) => {
   return (
     <div className="space-y-4 pt-4">
       <h2 className="text-2xl font-bold">Estudiantes Inscritos</h2>
-      {controller.enrollments && controller.enrollments.length > 0 ? (
+      {enrollments && enrollments.length > 0 ? (
         <Card>
           <CardContent className="pt-6">
             <Table>
@@ -25,11 +26,11 @@ export const StudentsTab = ({ controller }: { controller: any }) => {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {controller.enrollments.map((enrollment: any) => (
+                {enrollments.map((enrollment: EnrollmentEntity) => (
                   <TableRow key={enrollment.id}>
-                    <TableCell>Estudiante {enrollment.studentId}</TableCell>
-                    <TableCell>-</TableCell>
-                    <TableCell>-</TableCell>
+                    <TableCell>{enrollment.student?.firstName} {enrollment.student?.lastName}</TableCell>
+                    <TableCell>{enrollment.student?.email}</TableCell>
+                    <TableCell>{enrollment.student?.enrollmentNumber}</TableCell>
                     <TableCell>
                       <span className={`px-2 py-1 rounded text-xs font-medium ${enrollment.status === "enrolled"
                         ? "bg-green-100 text-green-800"

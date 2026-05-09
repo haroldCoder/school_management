@@ -13,13 +13,43 @@ import { Label } from "@/components/ui/label";
 import { Plus, Loader2, Download, Trash2 } from "lucide-react";
 import { formatFileSize, getFileIcon } from "../../utils";
 
-export const MaterialsTab = ({ controller }: { controller: any }) => {
+interface MaterialsTabProps {
+  isAdmin: boolean;
+  materials?: any[];
+  materialsLoading: boolean;
+  openMaterialDialog: boolean;
+  setOpenMaterialDialog: (value: boolean) => void;
+  materialForm: {
+    title: string;
+    description: string;
+    file: File | null;
+  };
+  setMaterialForm: (value: any) => void;
+  handleUploadMaterial: (e: React.FormEvent) => void;
+  uploadMaterial: {
+    isPending: boolean;
+  };
+  handleDeleteMaterial: (id: number) => void;
+}
+
+export const MaterialsTab = ({
+  isAdmin,
+  materials,
+  materialsLoading,
+  openMaterialDialog,
+  setOpenMaterialDialog,
+  materialForm,
+  setMaterialForm,
+  handleUploadMaterial,
+  uploadMaterial,
+  handleDeleteMaterial,
+}: MaterialsTabProps) => {
   return (
     <div className="space-y-4 pt-4">
       <div className="flex justify-between items-center">
         <h2 className="text-2xl font-bold">Materiales del Curso</h2>
-        {controller.isAdmin && (
-          <Dialog open={controller.openMaterialDialog} onOpenChange={controller.setOpenMaterialDialog}>
+        {isAdmin && (
+          <Dialog open={openMaterialDialog} onOpenChange={setOpenMaterialDialog}>
             <DialogTrigger asChild>
               <Button className="gap-2">
                 <Plus className="w-4 h-4" />
@@ -31,13 +61,13 @@ export const MaterialsTab = ({ controller }: { controller: any }) => {
                 <DialogTitle>Subir Nuevo Material</DialogTitle>
                 <DialogDescription>Sube un PDF o imagen para este curso</DialogDescription>
               </DialogHeader>
-              <form onSubmit={controller.handleUploadMaterial} className="space-y-4">
+              <form onSubmit={handleUploadMaterial} className="space-y-4">
                 <div>
                   <Label htmlFor="material-title">Título</Label>
                   <Input
                     id="material-title"
-                    value={controller.materialForm.title}
-                    onChange={(e) => controller.setMaterialForm({ ...controller.materialForm, title: e.target.value })}
+                    value={materialForm.title}
+                    onChange={(e) => setMaterialForm({ ...materialForm, title: e.target.value })}
                     placeholder="Ej: Capítulo 1"
                   />
                 </div>
@@ -45,8 +75,8 @@ export const MaterialsTab = ({ controller }: { controller: any }) => {
                   <Label htmlFor="material-desc">Descripción</Label>
                   <Input
                     id="material-desc"
-                    value={controller.materialForm.description}
-                    onChange={(e) => controller.setMaterialForm({ ...controller.materialForm, description: e.target.value })}
+                    value={materialForm.description}
+                    onChange={(e) => setMaterialForm({ ...materialForm, description: e.target.value })}
                     placeholder="Descripción opcional"
                   />
                 </div>
@@ -57,12 +87,12 @@ export const MaterialsTab = ({ controller }: { controller: any }) => {
                     type="file"
                     accept=".pdf,.jpg,.jpeg,.png,.gif"
                     onChange={(e) =>
-                      controller.setMaterialForm({ ...controller.materialForm, file: e.target.files?.[0] || null })
+                      setMaterialForm({ ...materialForm, file: e.target.files?.[0] || null })
                     }
                   />
                 </div>
-                <Button type="submit" disabled={controller.uploadMaterial.isPending} className="w-full">
-                  {controller.uploadMaterial.isPending ? (
+                <Button type="submit" disabled={uploadMaterial.isPending} className="w-full">
+                  {uploadMaterial.isPending ? (
                     <>
                       <Loader2 className="w-4 h-4 mr-2 animate-spin" />
                       Subiendo...
@@ -77,13 +107,13 @@ export const MaterialsTab = ({ controller }: { controller: any }) => {
         )}
       </div>
 
-      {controller.materialsLoading ? (
+      {materialsLoading ? (
         <div className="flex justify-center">
           <Loader2 className="w-6 h-6 animate-spin" />
         </div>
-      ) : controller.materials && controller.materials.length > 0 ? (
+      ) : materials && materials.length > 0 ? (
         <div className="space-y-3">
-          {controller.materials.map((material: any) => (
+          {materials.map((material: any) => (
             <Card key={material.id}>
               <CardContent className="pt-6">
                 <div className="flex items-center justify-between">
@@ -102,12 +132,12 @@ export const MaterialsTab = ({ controller }: { controller: any }) => {
                         Descargar
                       </Button>
                     </a>
-                    {controller.isAdmin && (
+                    {isAdmin && (
                       <Button
                         variant="destructive"
                         size="sm"
-                        onClick={() => controller.handleDeleteMaterial(material.id)}
-                        disabled={controller.uploadMaterial.isPending}
+                        onClick={() => handleDeleteMaterial(material.id)}
+                        disabled={uploadMaterial.isPending}
                       >
                         <Trash2 className="w-4 h-4" />
                       </Button>

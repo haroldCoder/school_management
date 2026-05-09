@@ -401,16 +401,22 @@ export async function getEnrollmentsByStudent(studentId: number, status?: "enrol
   const db = await getDb();
   if (!db) return [];
 
-  return await db.select()
+  const result = await db.select({ enrollments, student: students })
     .from(enrollments)
+    .innerJoin(students, eq(enrollments.studentId, students.id))
     .where(status ? and(eq(enrollments.studentId, studentId), eq(enrollments.status, status)) : eq(enrollments.studentId, studentId));
+  return result.map((r) => ({ ...r.enrollments, student: r.student }));
 }
 
 export async function getEnrollmentsByCourse(courseId: number) {
   const db = await getDb();
   if (!db) return [];
 
-  return await db.select().from(enrollments).where(eq(enrollments.courseId, courseId));
+  const result = await db.select({ enrollment: enrollments, student: students })
+    .from(enrollments)
+    .innerJoin(students, eq(enrollments.studentId, students.id))
+    .where(eq(enrollments.courseId, courseId));
+  return result.map((r) => r.enrollment);
 }
 
 export async function getEnrollmentsByTeacher(teacherId: number, { limit = 50, offset = 0, status }: { limit?: number; offset?: number; status?: "enrolled" | "dropped" } = {}) {
@@ -418,15 +424,16 @@ export async function getEnrollmentsByTeacher(teacherId: number, { limit = 50, o
   if (!db) return [];
 
   const result = await db
-    .select({ enrollment: enrollments })
+    .select({ enrollment: enrollments, student: students })
     .from(enrollments)
     .innerJoin(courses, eq(enrollments.courseId, courses.id))
+    .innerJoin(students, eq(enrollments.studentId, students.id))
     .where(status ? and(eq(courses.teacherId, teacherId), eq(enrollments.status, status)) : eq(courses.teacherId, teacherId))
     .orderBy(desc(enrollments.enrollmentDate))
     .limit(limit)
     .offset(offset);
 
-  return result.map((r) => r.enrollment);
+  return result.map((r) => ({ ...r.enrollment, student: r.student }));
 }
 
 export async function updateEnrollment(id: number, data: Partial<InsertEnrollment>): Promise<Enrollment | undefined> {
