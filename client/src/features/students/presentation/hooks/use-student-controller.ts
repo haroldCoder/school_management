@@ -9,7 +9,7 @@ import { FormEvent } from "react";
 
 export function useStudentController() {
     const { user } = useAuth();
-    const query = useStudentsQuery();
+    const { data: studentsData, isLoading } = useStudentsQuery();
     const { formData, editingId, setFormData, setEditingId, resetForm } = useStudentForm();
     const { updateStudent, createStudent, deleteStudent } = useStudentMutations({
         onSuccess: () => {
@@ -67,7 +67,8 @@ export function useStudentController() {
 
 
     return {
-        ...query,
+        studentsData,
+        isLoading,
         ...permissions,
         isAdmin,
         handleSubmit,

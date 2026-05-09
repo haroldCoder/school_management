@@ -1,4 +1,3 @@
-import { useCourseController } from "../hooks";
 import { CourseForm, CourseTable, QuizDialog } from "../components";
 import { Button } from "@/components/ui/button";
 import {
@@ -11,11 +10,13 @@ import {
 } from "@/components/ui/dialog";
 import { Plus } from "lucide-react";
 import { useI18n } from "@common/hooks";
+import { useCourse } from "../hooks";
+import { CourseDbEntity } from "../mappers";
 
 export const CoursesScreen = () => {
   const { t } = useI18n();
   const {
-    courses,
+    coursesData,
     isLoading,
     open,
     setOpen,
@@ -27,14 +28,13 @@ export const CoursesScreen = () => {
     handleEdit,
     handleRowClick,
     isAdmin,
-    isStudent,
     user,
     createCourse,
     updateCourse,
     deleteCourse,
     quiz,
     setLocation,
-  } = useCourseController();
+  } = useCourse();
 
   return (
     <div className="space-y-6">
@@ -42,10 +42,10 @@ export const CoursesScreen = () => {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold tracking-tight text-foreground">
-            {isStudent ? "Mis Cursos" : t("courses.title")}
+            {!isAdmin ? "Mis Cursos" : t("courses.title")}
           </h1>
           <p className="text-muted-foreground mt-1">
-            {isStudent
+            {!isAdmin
               ? "Cursos en los que estás matriculado"
               : isAdmin
                 ? "Haz clic en un curso para agregar un quiz"
@@ -100,7 +100,7 @@ export const CoursesScreen = () => {
 
       {/* Courses Table */}
       <CourseTable
-        courses={courses as any}
+        courses={CourseDbEntity.toList(coursesData ?? [])}
         isLoading={isLoading}
         isAdmin={isAdmin}
         handleEdit={handleEdit}

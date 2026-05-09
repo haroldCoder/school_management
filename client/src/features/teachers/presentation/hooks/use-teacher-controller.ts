@@ -7,7 +7,7 @@ import { TeacherEntity } from "../../domain/entities";
 import { FormEvent } from "react";
 
 export function useTeacherController() {
-    const query = useTeachersQuery();
+    const { data: teachersData, isLoading } = useTeachersQuery();
     const { formData, editingId, setFormData, setEditingId, resetForm } = useTeacherForm();
     const { open, setOpen } = useTeacherDialog();
     const { isAdmin, user } = useTeacherPermissions();
@@ -54,7 +54,8 @@ export function useTeacherController() {
     };
 
     return {
-        ...query,
+        teachersData,
+        isLoading,
         formData,
         setFormData,
         editingId,

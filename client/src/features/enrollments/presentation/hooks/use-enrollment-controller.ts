@@ -15,7 +15,7 @@ export function useEnrollmentController() {
     status: "enrolled",
   });
 
-  const { enrollments, students, courses, isLoading } = useEnrollmentQueries();
+  const { enrollments: enrollmentsData, students: studentsData, courses: coursesData, isLoading } = useEnrollmentQueries();
   const { createMutation, updateMutation, deleteMutation } = useEnrollmentMutations();
 
   const resetForm = () => {
@@ -58,9 +58,9 @@ export function useEnrollmentController() {
   const isAdmin = user?.role === "admin";
 
   return {
-    enrollments,
-    students,
-    courses,
+    enrollmentsData,
+    studentsData,
+    coursesData,
     isLoading,
     open,
     setOpen,
@@ -70,11 +70,12 @@ export function useEnrollmentController() {
     resetForm,
     handleSubmit,
     handleEdit,
-    getStudentName: (studentId: number) => getStudentName(studentId, students!),
-    getCourseName: (courseId: number) => getCourseName(courseId, courses!),
+    getStudentName: (studentId: number) => getStudentName(studentId, studentsData!),
+    getCourseName: (courseId: number) => getCourseName(courseId, coursesData!),
     isAdmin,
-    createMutation,
-    updateMutation,
-    deleteMutation,
+    user,
+    createEnrollment: createMutation,
+    updateEnrollment: updateMutation,
+    deleteEnrollment: deleteMutation,
   };
 }

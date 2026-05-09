@@ -1,4 +1,3 @@
-import { useEnrollmentController } from "../hooks";
 import { EnrollmentForm, EnrollmentTable } from "../components";
 import { Button } from "@/components/ui/button";
 import {
@@ -12,13 +11,14 @@ import {
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Plus, Loader2 } from "lucide-react";
 import { useI18n } from "@common/hooks";
+import { useEnrollment } from "../hooks";
 
 export const EnrollmentScreen = () => {
   const { t } = useI18n();
   const {
-    enrollments,
-    students,
-    courses,
+    enrollmentsData,
+    studentsData,
+    coursesData,
     isLoading,
     open,
     setOpen,
@@ -31,10 +31,10 @@ export const EnrollmentScreen = () => {
     getStudentName,
     getCourseName,
     isAdmin,
-    createMutation,
-    updateMutation,
-    deleteMutation,
-  } = useEnrollmentController();
+    createEnrollment,
+    updateEnrollment,
+    deleteEnrollment,
+  } = useEnrollment();
 
   return (
     <div className="space-y-6">
@@ -67,9 +67,9 @@ export const EnrollmentScreen = () => {
                 setFormData={setFormData}
                 handleSubmit={handleSubmit}
                 onCancel={() => setOpen(false)}
-                students={students}
-                courses={courses}
-                isPending={createMutation.isPending || updateMutation.isPending}
+                students={studentsData}
+                courses={coursesData}
+                isPending={createEnrollment.isPending || updateEnrollment.isPending}
               />
             </DialogContent>
           </Dialog>
@@ -80,26 +80,26 @@ export const EnrollmentScreen = () => {
       <Card className="border-0 shadow-sm">
         <CardHeader>
           <CardTitle>Listado de Matrículas</CardTitle>
-          <CardDescription>Total: {enrollments?.length || 0} matrículas</CardDescription>
+          <CardDescription>Total: {enrollmentsData?.length || 0} matrículas</CardDescription>
         </CardHeader>
         <CardContent>
           {isLoading ? (
             <div className="flex items-center justify-center py-8">
               <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
             </div>
-          ) : enrollments && enrollments.length > 0 ? (
+          ) : enrollmentsData && enrollmentsData.length > 0 ? (
             <EnrollmentTable
-              enrollments={enrollments}
+              enrollments={enrollmentsData}
               isAdmin={isAdmin}
               getStudentName={getStudentName}
               getCourseName={getCourseName}
               handleEdit={handleEdit}
               handleDelete={(id) => {
                 if (confirm(t("common.confirmDelete"))) {
-                  deleteMutation.mutate({ id });
+                  deleteEnrollment.mutate({ id });
                 }
               }}
-              deletePending={deleteMutation.isPending}
+              deletePending={deleteEnrollment.isPending}
             />
           ) : (
             <div className="text-center py-8 text-muted-foreground">{t("enrollments.noEnrollments")}</div>

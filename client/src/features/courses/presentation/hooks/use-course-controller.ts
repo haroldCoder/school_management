@@ -15,7 +15,7 @@ export function useCourseController() {
   const [editingId, setEditingId] = useState<number | null>(null);
   const [formData, setFormData] = useState<CourseFormDTO>(initialCourseState);
 
-  const query = useCoursesQuery();
+  const { data: coursesData, isLoading } = useCoursesQuery();
   const quiz = useQuizController();
 
   const resetForm = () => {
@@ -80,7 +80,8 @@ export function useCourseController() {
   const isStudent = user?.role === "user";
 
   return {
-    ...query,
+    coursesData,
+    isLoading,
     ...mutations,
     quiz,
     user,

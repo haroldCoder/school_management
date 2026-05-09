@@ -14,7 +14,7 @@ import { Plus } from "lucide-react";
 export const StudentsScreen = () => {
   const {
     t,
-    students,
+    studentsData,
     isLoading,
     open,
     setOpen,
@@ -70,7 +70,7 @@ export const StudentsScreen = () => {
       {/* Students Table */}
       <StudentTable
         t={t}
-        students={students}
+        students={studentsData}
         isLoading={isLoading}
         isAdmin={isAdmin}
         handleEdit={handleEdit}

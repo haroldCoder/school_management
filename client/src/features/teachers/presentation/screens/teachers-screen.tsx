@@ -1,4 +1,3 @@
-import { useTeacherController } from "../hooks";
 import { TeacherForm, TeacherTable } from "../components";
 import {
   Dialog,
@@ -8,11 +7,13 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { useI18n } from "@common/hooks";
+import { useTeacher } from "../hooks";
+import { TeacherMapper } from "../mappers";
 
 export const TeachersScreen = () => {
   const { t } = useI18n();
   const {
-    teachers,
+    teachersData,
     isLoading,
     formData,
     setFormData,
@@ -25,7 +26,7 @@ export const TeachersScreen = () => {
     editingId,
     updateTeacher,
     deleteTeacher,
-  } = useTeacherController();
+  } = useTeacher();
 
   return (
     <div className="space-y-6">
@@ -59,7 +60,7 @@ export const TeachersScreen = () => {
 
       {/* Teachers Table */}
       <TeacherTable
-        teachers={teachers as any}
+        teachers={TeacherMapper.toListDbEntity(teachersData ?? [])}
         isLoading={isLoading}
         isAdmin={isAdmin}
         userId={user?.id}

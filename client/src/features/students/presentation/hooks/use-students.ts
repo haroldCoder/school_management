@@ -4,7 +4,7 @@ import { useStudentController } from "./use-student-controller";
 export function useStudents() {
   const { t } = useI18n();
   const {
-    students,
+    studentsData,
     isLoading,
     formData,
     setFormData,
@@ -23,7 +23,7 @@ export function useStudents() {
 
   return {
     t,
-    students,
+    studentsData,
     isLoading,
     open,
     setOpen,
