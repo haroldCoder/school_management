@@ -1,10 +1,10 @@
-import { trpc } from "@common/utils";
+import { useStudentsQuery, useTeachersQuery, useCoursesQuery, useGradesQuery } from "@common/hooks";
 
 export function useReportsQueries() {
-  const { data: students, isLoading: studentsLoading } = trpc.students.list.useQuery({ limit: 1000 });
-  const { data: teachers, isLoading: teachersLoading } = trpc.teachers.list.useQuery({ limit: 1000 });
-  const { data: courses, isLoading: coursesLoading } = trpc.courses.list.useQuery({ limit: 1000 });
-  const { data: grades, isLoading: gradesLoading } = trpc.grades.list.useQuery({ limit: 1000 });
+  const { data: students, isLoading: studentsLoading } = useStudentsQuery({ limit: 1000 });
+  const { data: teachers, isLoading: teachersLoading } = useTeachersQuery({ limit: 1000 });
+  const { data: courses, isLoading: coursesLoading } = useCoursesQuery({ limit: 1000 });
+  const { data: grades, isLoading: gradesLoading } = useGradesQuery({ limit: 1000 });
 
   return {
     students,

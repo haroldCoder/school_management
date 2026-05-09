@@ -1,5 +1,5 @@
 import { useState, FormEvent } from "react";
-import { useCourseQuery } from "./courses-query";
+import { useCoursesQuery } from "@common/hooks/queries";
 import { useCourseMutations } from "./use-course-mutations";
 import { useQuizController } from "./use-quiz-controller";
 import { useAuth } from "@common/hooks";
@@ -15,7 +15,7 @@ export function useCourseController() {
   const [editingId, setEditingId] = useState<number | null>(null);
   const [formData, setFormData] = useState<CourseFormDTO>(initialCourseState);
 
-  const query = useCourseQuery();
+  const query = useCoursesQuery();
   const quiz = useQuizController();
 
   const resetForm = () => {

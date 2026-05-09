@@ -1,4 +1,4 @@
-import { useTeacherQuery } from "./use-teacher-query";
+import { useTeachersQuery } from "@common/hooks/queries";
 import { useTeacherForm } from "./use-teacher-form";
 import { useTeacherMutations } from "./use-teacher-mutations";
 import { useTeacherDialog } from "./use-teacher-dialog";
@@ -7,7 +7,7 @@ import { TeacherEntity } from "../../domain/entities";
 import { FormEvent } from "react";
 
 export function useTeacherController() {
-    const query = useTeacherQuery();
+    const query = useTeachersQuery();
     const { formData, editingId, setFormData, setEditingId, resetForm } = useTeacherForm();
     const { open, setOpen } = useTeacherDialog();
     const { isAdmin, user } = useTeacherPermissions();

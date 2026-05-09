@@ -1,9 +1,9 @@
-import { trpc } from "@common/utils";
+import { useEnrollmentsQuery, useStudentsQuery, useCoursesQuery } from "@common/hooks";
 
 export function useEnrollmentQueries() {
-  const { data: enrollments, isLoading: enrollmentsLoading } = trpc.enrollments.list.useQuery({ limit: 100 });
-  const { data: students, isLoading: studentsLoading } = trpc.students.list.useQuery({ limit: 100 });
-  const { data: courses, isLoading: coursesLoading } = trpc.courses.list.useQuery({ limit: 100 });
+  const { data: enrollments, isLoading: enrollmentsLoading } = useEnrollmentsQuery({ limit: 100 });
+  const { data: students, isLoading: studentsLoading } = useStudentsQuery({ limit: 100 });
+  const { data: courses, isLoading: coursesLoading } = useCoursesQuery({ limit: 100 });
 
   return {
     enrollments,

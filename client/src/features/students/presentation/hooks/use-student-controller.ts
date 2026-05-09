@@ -1,4 +1,4 @@
-import { useStudentQuery } from "./use-student-query";
+import { useStudentsQuery } from "@common/hooks/queries";
 import { useStudentForm } from "./use-student-form";
 import { useStudentMutations } from "./use-student-mutations";
 import { useStudentDialog } from "./use-student-dialog";
@@ -9,7 +9,7 @@ import { FormEvent } from "react";
 
 export function useStudentController() {
     const { user } = useAuth();
-    const query = useStudentQuery();
+    const query = useStudentsQuery();
     const { formData, editingId, setFormData, setEditingId, resetForm } = useStudentForm();
     const { updateStudent, createStudent, deleteStudent } = useStudentMutations({
         onSuccess: () => {

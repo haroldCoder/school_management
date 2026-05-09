@@ -11,6 +11,5 @@ export * from "./use-answer-form";
 export * from "./use-question-mutations";
 export * from "./use-material-query";
 export * from "./use-questions-query";
-export * from "./use-enrollement-query";
 
 
