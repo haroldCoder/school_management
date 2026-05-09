@@ -3,7 +3,7 @@ import { useEnrollmentQueries } from "./use-enrollment-queries";
 import { useEnrollmentMutations } from "./use-enrollment-mutations";
 import { EnrollmentFormDTO } from "../../application/dtos";
 import { useAuth } from "@common/hooks";
-import { getCourseName, getStudentName } from "../utils";
+import { getCourseName, getStudentName } from "@common/utils";
 
 export function useEnrollmentController() {
   const { user } = useAuth();

@@ -1,0 +1,1 @@
+export * from "./generate-grade-type-label";

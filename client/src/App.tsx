@@ -10,7 +10,7 @@ import Students from "@/pages/students";
 import Teachers from "@/pages/teachers";
 import Courses from "@/pages/courses";
 import Enrollments from "@/pages/enrollments";
-import Grades from "@/pages/Grades";
+import Grades from "@/pages/grades";
 import Reports from "@/pages/Reports";
 import CourseDetail from "@/pages/course-detail";
 import Home from "@/pages/home";
