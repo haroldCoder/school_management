@@ -1,6 +1,6 @@
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import NotFound from "@/pages/NotFound";
+import NotFound from "@/pages/not-found";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { ThemeProvider } from "@common/contexts";
 import { useAuth } from "@common/hooks";
@@ -14,7 +14,7 @@ import Grades from "@/pages/grades";
 import Reports from "@/pages/reports";
 import CourseDetail from "@/pages/course-detail";
 import Home from "@/pages/home";
-import Settings from "@/pages/Settings";
+import Settings from "@/pages/settings";
 import Auth from "@/pages/auth";
 import { Loader2 } from "lucide-react";
 import { useLocation, Route, Switch } from "wouter";
