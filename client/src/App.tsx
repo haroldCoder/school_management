@@ -11,7 +11,7 @@ import Teachers from "@/pages/teachers";
 import Courses from "@/pages/courses";
 import Enrollments from "@/pages/enrollments";
 import Grades from "@/pages/grades";
-import Reports from "@/pages/Reports";
+import Reports from "@/pages/reports";
 import CourseDetail from "@/pages/course-detail";
 import Home from "@/pages/home";
 import Settings from "@/pages/Settings";

@@ -8,5 +8,5 @@ export interface TeacherEntity {
     employeeNumber?: string;
     hireDate?: Date;
     status: "active" | "inactive" | "on_leave";
-    idUser?: string;
+    idUser?: number;
 }

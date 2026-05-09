@@ -193,6 +193,7 @@ export default defineConfig({
       "@courses": path.resolve(import.meta.dirname, "client/src/features/courses"),
       "@enrollments": path.resolve(import.meta.dirname, "client/src/features/enrollments"),
       "@grades": path.resolve(import.meta.dirname, "client/src/features/grades"),
+      "@reports": path.resolve(import.meta.dirname, "client/src/features/reports"),
     },
   },
   envDir: path.resolve(import.meta.dirname),
