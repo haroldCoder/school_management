@@ -4,15 +4,15 @@ export class TeacherMapper {
     static toDbEntity(teacher: any): TeacherEntity {
         return {
             id: teacher.id,
-            firstName: teacher.first_name,
-            lastName: teacher.last_name,
+            firstName: teacher.firstName,
+            lastName: teacher.lastName,
             email: teacher.email,
             phone: teacher.phone,
             specialization: teacher.specialization,
-            employeeNumber: teacher.employee_number,
-            hireDate: teacher.hire_date,
+            employeeNumber: teacher.employeeNumber,
+            hireDate: teacher.hireDate,
             status: teacher.status,
-            idUser: teacher.id_user,
+            idUser: teacher.idUser,
         };
     }
 
