@@ -93,7 +93,7 @@ export function useCourseDetailController(courseId: number) {
 
     await submitAnswer.mutateAsync({
       questionId: selectedQuestion.id,
-      studentId: user.id,
+      studentUserId: user.id,
       courseId,
       answer: answerForm.answer,
     });

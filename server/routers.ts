@@ -698,18 +698,38 @@ export const appRouter = router({
       .input(
         z.object({
           questionId: z.number(),
-          studentId: z.number(),
+          studentUserId: z.number(),
           courseId: z.number(),
           answer: z.string(),
         })
       )
       .mutation(async ({ input, ctx }) => {
         // Verify that the current user is the student or an admin
-        if (ctx.user?.id !== input.studentId && ctx.user?.role !== "admin") {
+        if (ctx.user?.id !== input.studentUserId && ctx.user?.role !== "admin") {
           throw new TRPCError({ code: "FORBIDDEN", message: "No tienes permiso para enviar respuestas en nombre de otro estudiante" });
         }
+
+        const studentId = await getStudentByUserId(input.studentUserId);
+        console.log(studentId);
+
+        if (!studentId) {
+          throw new TRPCError({ code: "NOT_FOUND", message: "No se encontró el estudiante" });
+        }
+
+        console.log({
+          questionId: input.questionId,
+          studentId: studentId.id,
+          courseId: input.courseId,
+          answer: input.answer,
+          submittedAt: new Date(),
+        });
+
+
         return await submitAnswer({
-          ...input,
+          questionId: input.questionId,
+          studentId: studentId.id,
+          courseId: input.courseId,
+          answer: input.answer,
           submittedAt: new Date(),
         });
       }),
