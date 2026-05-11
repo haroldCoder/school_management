@@ -1,0 +1,25 @@
+{
+  "version": 2,
+  "buildCommand": "vite build",
+  "outputDirectory": "dist/public",
+  "installCommand": "npx pnpm install",
+  "framework": null,
+  "rewrites": [
+    {
+      "source": "/api/:path*",
+      "destination": "/api/index"
+    },
+    {
+      "source": "/((?!api).*)",
+      "destination": "/index.html"
+    }
+  ],
+  "functions": {
+    "api/index.ts": {
+      "maxDuration": 30
+    }
+  },
+  "env": {
+    "NODE_ENV": "production"
+  }
+}

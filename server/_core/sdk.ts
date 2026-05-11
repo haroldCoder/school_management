@@ -258,7 +258,7 @@ class SDKServer {
 
   async authenticateRequest(req: Request): Promise<User> {
     // Regular authentication flow
-    const cookies = this.parseCookies(req.headers.cookie);
+    const cookies = this.parseCookies((req as any).headers?.cookie);
     const sessionCookie = cookies.get(COOKIE_NAME);
     const session = await this.verifySession(sessionCookie);
 
@@ -276,9 +276,7 @@ class SDKServer {
         const userInfo = await this.getUserInfoWithJwt(sessionCookie ?? "");
         await db.upsertUser({
           openId: userInfo.openId,
-          name: userInfo.name || null,
-          email: userInfo.email ?? null,
-          loginMethod: userInfo.loginMethod ?? userInfo.platform ?? null,
+          loginMethod: userInfo.loginMethod ?? userInfo.platform ?? undefined,
           lastSignedIn: signedInAt,
         });
         user = await db.getUserByOpenId(userInfo.openId);

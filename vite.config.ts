@@ -161,7 +161,7 @@ function vitePluginAnalytics(): Plugin {
       order: "pre",
       handler(html) {
         if (!process.env.VITE_ANALYTICS_ENDPOINT || process.env.VITE_ANALYTICS_ENDPOINT.includes("%")) {
-          return html.replace(/<script\b[^>]*src="%VITE_ANALYTICS_ENDPOINT%\/umami"[^>]*>.*?<\/script>/gs, "");
+          return html.replace(/<script\b[^>]*src="%VITE_ANALYTICS_ENDPOINT%\/umami"[^>]*>[\s\S]*?<\/script>/g, "");
         }
         return html;
       },
@@ -169,12 +169,12 @@ function vitePluginAnalytics(): Plugin {
   };
 }
 
+const isDev = process.env.NODE_ENV !== "production";
+
 const plugins = [
   react(),
   tailwindcss(),
-  jsxLocPlugin(),
-  vitePluginManusRuntime(),
-  vitePluginManusDebugCollector(),
+  ...(isDev ? [jsxLocPlugin(), vitePluginManusRuntime(), vitePluginManusDebugCollector()] : []),
   vitePluginAnalytics(),
 ];
 
