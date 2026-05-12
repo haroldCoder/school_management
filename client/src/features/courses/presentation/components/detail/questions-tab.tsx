@@ -1,3 +1,4 @@
+import { QuestionEntity } from "@/common/domain";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import {
@@ -13,84 +14,66 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Plus, Loader2, Trash2, Send, Eye } from "lucide-react";
 import { AnswersList } from "./answers-list";
-
-import { QuestionEntity } from "@/features/courses/domain/entities";
+import { QuestionFormEntity } from "../../entities";
 
 interface QuestionsTabProps {
+  studentAnswers?: any[];
   isAdmin: boolean;
-  questions?: QuestionEntity[];
-  questionsLoading: boolean;
   openQuestionDialog: boolean;
   setOpenQuestionDialog: (value: boolean) => void;
-  questionForm: {
-    title: string;
-    description: string;
-    questionType: QuestionEntity["questionType"];
-    points: number;
-    content: string;
-    correctAnswer: string;
-  };
-  setQuestionForm: (value: any) => void;
   handleCreateQuestion: (event: React.FormEvent<HTMLFormElement>) => void;
-  createQuestionMutation: {
-    isPending: boolean;
-  };
-  deleteQuestionMutation: {
-    isPending: boolean;
-  };
+  questionForm: QuestionFormEntity;
+  setQuestionForm: (value: QuestionFormEntity) => void;
+  isCreateQuestionLoading: boolean;
+  isQuestionsLoading: boolean;
+  questions: QuestionEntity[];
   handleDeleteQuestion: (questionId: number) => void;
+  handleViewAnswers: (question: QuestionEntity) => void;
+  isDeleteQuestionLoading: boolean;
   openAnswerDialog: boolean;
   setOpenAnswerDialog: (value: boolean) => void;
-  selectedQuestion: QuestionEntity | null;
-  handleAnswerQuestion: (question: QuestionEntity) => void;
-  answerForm: {
-    answer: string;
-  };
-  setAnswerForm: (value: any) => void;
-  handleSubmitAnswer: (e: React.FormEvent<HTMLFormElement>) => void;
-  submitAnswer: {
-    isPending: boolean;
-  };
-  handleViewAnswers: (question: QuestionEntity) => void;
   openAnswersListDialog: boolean;
   setOpenAnswersListDialog: (value: boolean) => void;
+  selectedQuestion: QuestionEntity | null;
+  handleAnswerQuestion: (question: QuestionEntity) => void;
+  handleSubmitAnswer: (event: React.FormEvent<HTMLFormElement>) => void;
+  answerForm: any;
+  setAnswerForm: (value: any) => void;
+  isSubmitAnswerLoading: boolean;
+  isUpdateAnswerLoading: boolean;
   answers: any[];
   answersLoading: boolean;
-  handleGradeAnswer: (answerId: number, data: any) => void;
-  updateAnswer: {
-    isPending: boolean;
-  };
-  studentAnswers?: any[];
+  handleGradeAnswer: (questionId: number, gradeData: any) => void;
 }
 
 export const QuestionsTab = ({
+  studentAnswers,
   isAdmin,
-  questions,
-  questionsLoading,
   openQuestionDialog,
   setOpenQuestionDialog,
   questionForm,
-  setQuestionForm,
   handleCreateQuestion,
-  createQuestionMutation,
-  deleteQuestionMutation,
+  setQuestionForm,
+  isCreateQuestionLoading,
+  isQuestionsLoading,
+  questions,
   handleDeleteQuestion,
+  handleViewAnswers,
+  isDeleteQuestionLoading,
   openAnswerDialog,
   setOpenAnswerDialog,
-  selectedQuestion,
-  handleAnswerQuestion,
-  answerForm,
-  setAnswerForm,
-  handleSubmitAnswer,
-  submitAnswer,
-  handleViewAnswers,
   openAnswersListDialog,
   setOpenAnswersListDialog,
+  selectedQuestion,
+  handleAnswerQuestion,
+  handleSubmitAnswer,
+  answerForm,
+  setAnswerForm,
+  isSubmitAnswerLoading,
+  isUpdateAnswerLoading,
   answers,
   answersLoading,
   handleGradeAnswer,
-  updateAnswer,
-  studentAnswers,
 }: QuestionsTabProps) => {
   const getStudentAnswer = (questionId: number) => {
     return studentAnswers?.find((a) => a.questionId === questionId);
@@ -173,8 +156,8 @@ export const QuestionsTab = ({
                     rows={2}
                   />
                 </div>
-                <Button type="submit" disabled={createQuestionMutation.isPending} className="w-full">
-                  {createQuestionMutation.isPending ? (
+                <Button type="submit" disabled={isCreateQuestionLoading} className="w-full">
+                  {isCreateQuestionLoading ? (
                     <>
                       <Loader2 className="w-4 h-4 mr-2 animate-spin" />
                       Creando...
@@ -189,7 +172,7 @@ export const QuestionsTab = ({
         )}
       </div>
 
-      {questionsLoading ? (
+      {isQuestionsLoading ? (
         <div className="flex justify-center">
           <Loader2 className="w-6 h-6 animate-spin" />
         </div>
@@ -219,7 +202,7 @@ export const QuestionsTab = ({
                           variant="outline"
                           size="sm"
                           onClick={() => handleDeleteQuestion(question.id)}
-                          disabled={deleteQuestionMutation.isPending}
+                          disabled={isDeleteQuestionLoading}
                         >
                           <Trash2 className="w-4 h-4" />
                         </Button>
@@ -276,8 +259,8 @@ export const QuestionsTab = ({
                                     rows={6}
                                   />
                                 </div>
-                                <Button type="submit" disabled={submitAnswer.isPending} className="w-full">
-                                  {submitAnswer.isPending ? (
+                                <Button type="submit" disabled={isSubmitAnswerLoading} className="w-full">
+                                  {isSubmitAnswerLoading ? (
                                     <>
                                       <Loader2 className="w-4 h-4 mr-2 animate-spin" />
                                       Enviando...
@@ -315,7 +298,7 @@ export const QuestionsTab = ({
             answers={answers}
             loading={answersLoading}
             onGrade={handleGradeAnswer}
-            isGrading={updateAnswer.isPending}
+            isGrading={isUpdateAnswerLoading}
           />
         </DialogContent>
       </Dialog>

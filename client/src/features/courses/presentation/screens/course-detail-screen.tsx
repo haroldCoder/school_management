@@ -25,7 +25,6 @@ export const CourseDetailScreen = () => {
     materialForm,
     setMaterialForm,
     handleUploadMaterial,
-    uploadMaterial,
     handleDeleteMaterial,
     questions,
     questionsLoading,
@@ -34,8 +33,6 @@ export const CourseDetailScreen = () => {
     questionForm,
     setQuestionForm,
     handleCreateQuestion,
-    createQuestionMutation,
-    deleteQuestionMutation,
     handleDeleteQuestion,
     openAnswerDialog,
     setOpenAnswerDialog,
@@ -44,8 +41,6 @@ export const CourseDetailScreen = () => {
     answerForm,
     setAnswerForm,
     handleSubmitAnswer,
-    submitAnswer,
-    updateAnswer,
     handleViewAnswers,
     openAnswersListDialog,
     setOpenAnswersListDialog,
@@ -53,7 +48,11 @@ export const CourseDetailScreen = () => {
     answersLoading,
     handleGradeAnswer,
     studentAnswers,
-    studentAnswersLoading,
+    isCreateQuestionLoading,
+    isDeleteQuestionLoading,
+    isSubmitAnswerLoading,
+    isUpdateAnswerLoading,
+    isUploadMaterialPending
   } = useCourseDetailController(courseId);
 
   if (courseLoading) {
@@ -114,7 +113,7 @@ export const CourseDetailScreen = () => {
             materialForm={materialForm}
             setMaterialForm={setMaterialForm}
             handleUploadMaterial={handleUploadMaterial}
-            uploadMaterial={uploadMaterial}
+            isUploadMaterialPending={isUploadMaterialPending}
             handleDeleteMaterial={handleDeleteMaterial}
           />
         </TabsContent>
@@ -123,14 +122,12 @@ export const CourseDetailScreen = () => {
           <QuestionsTab
             isAdmin={isAdmin}
             questions={QuestionMapper.toEntityList(questions ?? [])}
-            questionsLoading={questionsLoading}
+            isQuestionsLoading={questionsLoading}
             openQuestionDialog={openQuestionDialog}
             setOpenQuestionDialog={setOpenQuestionDialog}
             questionForm={questionForm}
             setQuestionForm={setQuestionForm}
             handleCreateQuestion={handleCreateQuestion}
-            createQuestionMutation={createQuestionMutation}
-            deleteQuestionMutation={deleteQuestionMutation}
             handleDeleteQuestion={handleDeleteQuestion}
             openAnswerDialog={openAnswerDialog}
             setOpenAnswerDialog={setOpenAnswerDialog}
@@ -139,8 +136,6 @@ export const CourseDetailScreen = () => {
             answerForm={answerForm}
             setAnswerForm={setAnswerForm}
             handleSubmitAnswer={handleSubmitAnswer}
-            submitAnswer={submitAnswer}
-            updateAnswer={updateAnswer}
             handleViewAnswers={handleViewAnswers}
             openAnswersListDialog={openAnswersListDialog}
             setOpenAnswersListDialog={setOpenAnswersListDialog}
@@ -148,6 +143,10 @@ export const CourseDetailScreen = () => {
             answersLoading={answersLoading}
             handleGradeAnswer={handleGradeAnswer}
             studentAnswers={studentAnswers}
+            isCreateQuestionLoading={isCreateQuestionLoading}
+            isDeleteQuestionLoading={isDeleteQuestionLoading}
+            isSubmitAnswerLoading={isSubmitAnswerLoading}
+            isUpdateAnswerLoading={isUpdateAnswerLoading}
           />
         </TabsContent>
 

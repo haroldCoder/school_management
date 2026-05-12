@@ -3,10 +3,8 @@ import { toast } from "sonner";
 import { initialQuizState, defaultQuizQuestion } from "../constants";
 import { QuizFormDTO, QuizQuestionDTO } from "../../application/dtos";
 import { CourseEntity } from "../../domain/entities";
-import { useQuizMutations } from "./use-quiz-mutations";
 
 export function useQuizController() {
-  const { createQuestionMutation, utils } = useQuizMutations();
   const [quizOpen, setQuizOpen] = useState(false);
   const [selectedCourse, setSelectedCourse] = useState<CourseEntity | null>(null);
   const [quizStep, setQuizStep] = useState<1 | 2>(1);
@@ -63,7 +61,7 @@ export function useQuizController() {
     setIsSavingQuiz(true);
     try {
       for (const q of validQuestions) {
-        await createQuestionMutation.mutateAsync({
+        /*await createQuestionMutation.mutateAsync({
           courseId: selectedCourse.id,
           title: `[${quizForm.title}] ${q.content.slice(0, 60)}`,
           description: quizForm.description || undefined,
@@ -71,9 +69,11 @@ export function useQuizController() {
           content: q.content,
           correctAnswer: q.correctAnswer || undefined,
           points: q.points,
-        });
+        });*/
+
+
       }
-      utils.questions.list.invalidate({ courseId: selectedCourse.id });
+      //utils.questions.list.invalidate({ courseId: selectedCourse.id });
       toast.success(`Quiz "${quizForm.title}" creado con ${validQuestions.length} pregunta(s)`);
       setQuizOpen(false);
       resetQuizForm();

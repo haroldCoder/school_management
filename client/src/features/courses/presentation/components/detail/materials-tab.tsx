@@ -26,9 +26,7 @@ interface MaterialsTabProps {
   };
   setMaterialForm: (value: any) => void;
   handleUploadMaterial: (e: React.FormEvent) => void;
-  uploadMaterial: {
-    isPending: boolean;
-  };
+  isUploadMaterialPending: boolean;
   handleDeleteMaterial: (id: number) => void;
 }
 
@@ -41,7 +39,7 @@ export const MaterialsTab = ({
   materialForm,
   setMaterialForm,
   handleUploadMaterial,
-  uploadMaterial,
+  isUploadMaterialPending,
   handleDeleteMaterial,
 }: MaterialsTabProps) => {
   return (
@@ -91,8 +89,8 @@ export const MaterialsTab = ({
                     }
                   />
                 </div>
-                <Button type="submit" disabled={uploadMaterial.isPending} className="w-full">
-                  {uploadMaterial.isPending ? (
+                <Button type="submit" disabled={isUploadMaterialPending} className="w-full">
+                  {isUploadMaterialPending ? (
                     <>
                       <Loader2 className="w-4 h-4 mr-2 animate-spin" />
                       Subiendo...
@@ -137,7 +135,7 @@ export const MaterialsTab = ({
                         variant="destructive"
                         size="sm"
                         onClick={() => handleDeleteMaterial(material.id)}
-                        disabled={uploadMaterial.isPending}
+                        disabled={isUploadMaterialPending}
                       >
                         <Trash2 className="w-4 h-4" />
                       </Button>

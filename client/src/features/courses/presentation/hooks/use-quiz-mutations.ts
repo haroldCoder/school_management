@@ -4,18 +4,11 @@ import { toast } from "sonner";
 export function useQuizMutations() {
     const utils = trpc.useUtils();
 
-    const createQuestionMutation = trpc.questions.create.useMutation({
-        onSuccess: () => {
-            utils.questions.list.invalidate();
-            toast.success("Quiz creado exitosamente");
-        },
-        onError: (error: any) => {
-            toast.error(error.message || "Error al crear quiz");
-        },
-    });
+    const createQuizMutation = () => {
+
+    }
 
     return {
-        createQuestionMutation,
-        utils
+        createQuizMutation,
     };
 }

@@ -1,12 +1,8 @@
 import { useState, FormEvent } from "react";
 import { useAuth, useI18n } from "@common/hooks";
 import { useLocation } from "wouter";
-import { useMaterialMutations } from "./use-material-mutations";
 import { useAnswerMutations } from "./use-answer-mutations";
-import { useQuizMutations } from "./use-quiz-mutations";
-import { useQuestionMutations } from "./use-question-mutations";
 import { useMaterialForm } from "./use-material-form";
-import { useQuestionForm } from "./use-question-form";
 import { useAnswerForm } from "./use-answer-form";
 import { useCourseDetailQuery } from "./courses-query";
 import { useMaterialQuery } from "./use-material-query";
@@ -14,9 +10,8 @@ import { useQuestionsQuery } from "./use-questions-query";
 import { useEnrollementQuery } from "./use-enrollement-query";
 import { useAnswersQuery } from "./use-answers-query";
 import { useStudentAnswersQuery } from "./use-student-answers-query";
-import { validateAnswer, validateMaterialUpload, validateQuestion } from "../../application/validators";
-import { QuestionEntity } from "../../domain/entities";
-import { createFilePreview } from "../../infrastructure/files";
+import { validateAnswer } from "../../application/validators";
+import { useCourseDialogs, useMaterialActions, useQuestionActions, useSelectQuestion } from "./course-detail-controller";
 
 export function useCourseDetailController(courseId: number) {
   const { t } = useI18n();
@@ -26,12 +21,17 @@ export function useCourseDetailController(courseId: number) {
   const isAdmin = user?.role === "admin";
 
   // Dialog states
-  const [openMaterialDialog, setOpenMaterialDialog] = useState(false);
-  const [openQuestionDialog, setOpenQuestionDialog] = useState(false);
-  const [openAnswerDialog, setOpenAnswerDialog] = useState(false);
-  const [openAnswersListDialog, setOpenAnswersListDialog] = useState(false);
-  const [selectedQuestion, setSelectedQuestion] = useState<any | null>(null);
-
+  const {
+    openMaterialDialog,
+    setOpenMaterialDialog,
+    openQuestionDialog,
+    setOpenQuestionDialog,
+    openAnswerDialog,
+    setOpenAnswerDialog,
+    openAnswersListDialog,
+    setOpenAnswersListDialog
+  } = useCourseDialogs();
+  const { selectedQuestion, setSelectedQuestion } = useSelectQuestion();
   // Queries
 
   const { course, courseLoading } = useCourseDetailQuery({ courseId });
@@ -51,54 +51,26 @@ export function useCourseDetailController(courseId: number) {
 
   // Form states
   const { materialForm, setMaterialForm } = useMaterialForm();
-  const { questionForm, setQuestionForm } = useQuestionForm();
   const { answerForm, setAnswerForm } = useAnswerForm();
 
   // Mutations
-  const { uploadMaterial, deleteMaterial } = useMaterialMutations(courseId);
   const { submitAnswer, updateAnswer } = useAnswerMutations(courseId);
-  const { createQuestionMutation } = useQuizMutations();
-  const { deleteQuestionMutation } = useQuestionMutations({ courseId });
 
   // Handlers
-  const handleUploadMaterial = async (e: FormEvent) => {
-    e.preventDefault();
-    if (!validateMaterialUpload(materialForm)) return;
+  const { handleUploadMaterial, handleDeleteMaterial, isUploadMaterialPending } = useMaterialActions(courseId);
 
-    const { fileUrl, fileType } = await createFilePreview(materialForm.file);
+  const createQuestionCallback = () => {
+    setOpenQuestionDialog(true);
+  }
 
-    await uploadMaterial.mutateAsync({
-      courseId,
-      title: materialForm.title,
-      description: materialForm.description || undefined,
-      fileUrl,
-      fileKey: `materials/${courseId}/${Date.now()}-${materialForm.file.name}`,
-      fileType,
-      fileSize: materialForm.file.size,
-    });
-    setOpenMaterialDialog(false);
-    setMaterialForm({ title: "", description: "", file: null });
-  };
-
-  const handleCreateQuestion = async (e: FormEvent) => {
-    e.preventDefault();
-
-    if (!validateQuestion(questionForm as QuestionEntity)) return;
-
-    await createQuestionMutation.mutateAsync({
-      courseId,
-      ...questionForm,
-    });
-    setOpenQuestionDialog(false);
-    setQuestionForm({
-      title: "",
-      description: "",
-      questionType: "short_answer",
-      content: "",
-      correctAnswer: "",
-      points: 1,
-    });
-  };
+  const {
+    handleCreateQuestion,
+    handleDeleteQuestion,
+    questionForm,
+    setQuestionForm,
+    isCreateQuestionLoading,
+    isDeleteQuestionLoading
+  } = useQuestionActions({ courseId });
 
   const handleSubmitAnswer = async (e: FormEvent) => {
     e.preventDefault();
@@ -114,18 +86,6 @@ export function useCourseDetailController(courseId: number) {
     setOpenAnswerDialog(false);
     setAnswerForm({ answer: "" });
     setSelectedQuestion(null);
-  };
-
-  const handleDeleteMaterial = (id: number) => {
-    if (confirm("¿Está seguro de que desea eliminar este material?")) {
-      deleteMaterial.mutate({ id });
-    }
-  };
-
-  const handleDeleteQuestion = (id: number) => {
-    if (confirm("¿Está seguro de que desea eliminar esta pregunta?")) {
-      deleteQuestionMutation.mutate({ id });
-    }
   };
 
   const handleAnswerQuestion = (question: any) => {
@@ -173,18 +133,13 @@ export function useCourseDetailController(courseId: number) {
     answerForm,
     setAnswerForm,
     handleUploadMaterial,
-    handleCreateQuestion,
+    handleCreateQuestion: (e: FormEvent) => handleCreateQuestion(e, createQuestionCallback),
     handleSubmitAnswer,
     handleDeleteMaterial,
     handleDeleteQuestion,
     handleAnswerQuestion,
     handleViewAnswers,
     handleGradeAnswer,
-    uploadMaterial,
-    createQuestionMutation,
-    submitAnswer,
-    updateAnswer,
-    deleteQuestionMutation,
     openAnswersListDialog,
     setOpenAnswersListDialog,
     answers,
@@ -192,5 +147,10 @@ export function useCourseDetailController(courseId: number) {
     studentAnswers,
     studentAnswersLoading,
     isAdmin,
+    isCreateQuestionLoading,
+    isDeleteQuestionLoading,
+    isSubmitAnswerLoading: submitAnswer.isPending,
+    isUpdateAnswerLoading: updateAnswer.isPending,
+    isUploadMaterialPending,
   };
 }

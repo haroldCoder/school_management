@@ -13,7 +13,18 @@ export function useQuestionMutations({ courseId }: { courseId: number }) {
         },
     });
 
+    const createQuestionMutation = trpc.questions.create.useMutation({
+        onSuccess: () => {
+            utils.questions.list.invalidate();
+            toast.success("Quiz creado exitosamente");
+        },
+        onError: (error: any) => {
+            toast.error(error.message || "Error al crear quiz");
+        },
+    });
+
     return {
-        deleteQuestionMutation
+        deleteQuestionMutation,
+        createQuestionMutation
     }
 }
