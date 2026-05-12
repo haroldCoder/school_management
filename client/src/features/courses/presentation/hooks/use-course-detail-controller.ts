@@ -12,6 +12,8 @@ import { useCourseDetailQuery } from "./courses-query";
 import { useMaterialQuery } from "./use-material-query";
 import { useQuestionsQuery } from "./use-questions-query";
 import { useEnrollementQuery } from "./use-enrollement-query";
+import { useAnswersQuery } from "./use-answers-query";
+import { useStudentAnswersQuery } from "./use-student-answers-query";
 import { validateAnswer, validateMaterialUpload, validateQuestion } from "../../application/validators";
 import { QuestionEntity } from "../../domain/entities";
 import { createFilePreview } from "../../infrastructure/files";
@@ -21,11 +23,13 @@ export function useCourseDetailController(courseId: number) {
   const { user } = useAuth();
   const [, setLocation] = useLocation();
   const [activeTab, setActiveTab] = useState("materials");
+  const isAdmin = user?.role === "admin";
 
   // Dialog states
   const [openMaterialDialog, setOpenMaterialDialog] = useState(false);
   const [openQuestionDialog, setOpenQuestionDialog] = useState(false);
   const [openAnswerDialog, setOpenAnswerDialog] = useState(false);
+  const [openAnswersListDialog, setOpenAnswersListDialog] = useState(false);
   const [selectedQuestion, setSelectedQuestion] = useState<any | null>(null);
 
   // Queries
@@ -34,6 +38,16 @@ export function useCourseDetailController(courseId: number) {
   const { materials, materialsLoading } = useMaterialQuery({ courseId });
   const { questions, questionsLoading } = useQuestionsQuery({ courseId });
   const { enrollments } = useEnrollementQuery({ courseId });
+  const { answers, answersLoading } = useAnswersQuery({
+    questionId: selectedQuestion?.id,
+    enabled: isAdmin && openAnswersListDialog
+  });
+
+  const { studentAnswers, studentAnswersLoading } = useStudentAnswersQuery({
+    studentId: user?.studentId ?? 0,
+    courseId,
+    enabled: !!user?.studentId && !isAdmin
+  });
 
   // Form states
   const { materialForm, setMaterialForm } = useMaterialForm();
@@ -42,7 +56,7 @@ export function useCourseDetailController(courseId: number) {
 
   // Mutations
   const { uploadMaterial, deleteMaterial } = useMaterialMutations(courseId);
-  const { submitAnswer } = useAnswerMutations(courseId);
+  const { submitAnswer, updateAnswer } = useAnswerMutations(courseId);
   const { createQuestionMutation } = useQuizMutations();
   const { deleteQuestionMutation } = useQuestionMutations({ courseId });
 
@@ -120,7 +134,17 @@ export function useCourseDetailController(courseId: number) {
     setOpenAnswerDialog(true);
   };
 
-  const isAdmin = user?.role === "admin";
+  const handleViewAnswers = (question: any) => {
+    setSelectedQuestion(question);
+    setOpenAnswersListDialog(true);
+  };
+
+  const handleGradeAnswer = async (answerId: number, data: { pointsEarned: number; feedback: string; isCorrect: number }) => {
+    await updateAnswer.mutateAsync({
+      id: answerId,
+      ...data,
+    });
+  };
 
   return {
     t,
@@ -154,10 +178,19 @@ export function useCourseDetailController(courseId: number) {
     handleDeleteMaterial,
     handleDeleteQuestion,
     handleAnswerQuestion,
+    handleViewAnswers,
+    handleGradeAnswer,
     uploadMaterial,
     createQuestionMutation,
     submitAnswer,
+    updateAnswer,
     deleteQuestionMutation,
+    openAnswersListDialog,
+    setOpenAnswersListDialog,
+    answers,
+    answersLoading,
+    studentAnswers,
+    studentAnswersLoading,
     isAdmin,
   };
 }

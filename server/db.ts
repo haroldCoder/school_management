@@ -711,9 +711,18 @@ export async function getQuestionAnswers(questionId: number) {
   const db = await getDb();
   if (!db) return [];
 
-  return await db
-    .select()
+  const result = await db
+    .select({
+      answer: studentAnswers,
+      student: students,
+    })
     .from(studentAnswers)
+    .innerJoin(students, eq(studentAnswers.studentId, students.id))
     .where(eq(studentAnswers.questionId, questionId))
     .orderBy(desc(studentAnswers.submittedAt));
+
+  return result.map((r) => ({
+    ...r.answer,
+    studentName: `${r.student.firstName} ${r.student.lastName}`,
+  }));
 }

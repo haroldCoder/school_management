@@ -45,6 +45,15 @@ export const CourseDetailScreen = () => {
     setAnswerForm,
     handleSubmitAnswer,
     submitAnswer,
+    updateAnswer,
+    handleViewAnswers,
+    openAnswersListDialog,
+    setOpenAnswersListDialog,
+    answers,
+    answersLoading,
+    handleGradeAnswer,
+    studentAnswers,
+    studentAnswersLoading,
   } = useCourseDetailController(courseId);
 
   if (courseLoading) {
@@ -131,6 +140,14 @@ export const CourseDetailScreen = () => {
             setAnswerForm={setAnswerForm}
             handleSubmitAnswer={handleSubmitAnswer}
             submitAnswer={submitAnswer}
+            updateAnswer={updateAnswer}
+            handleViewAnswers={handleViewAnswers}
+            openAnswersListDialog={openAnswersListDialog}
+            setOpenAnswersListDialog={setOpenAnswersListDialog}
+            answers={answers}
+            answersLoading={answersLoading}
+            handleGradeAnswer={handleGradeAnswer}
+            studentAnswers={studentAnswers}
           />
         </TabsContent>
 

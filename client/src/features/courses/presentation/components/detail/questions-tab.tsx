@@ -11,7 +11,8 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Plus, Loader2, Trash2, Send } from "lucide-react";
+import { Plus, Loader2, Trash2, Send, Eye } from "lucide-react";
+import { AnswersList } from "./answers-list";
 
 import { QuestionEntity } from "@/features/courses/domain/entities";
 
@@ -50,6 +51,16 @@ interface QuestionsTabProps {
   submitAnswer: {
     isPending: boolean;
   };
+  handleViewAnswers: (question: QuestionEntity) => void;
+  openAnswersListDialog: boolean;
+  setOpenAnswersListDialog: (value: boolean) => void;
+  answers: any[];
+  answersLoading: boolean;
+  handleGradeAnswer: (answerId: number, data: any) => void;
+  updateAnswer: {
+    isPending: boolean;
+  };
+  studentAnswers?: any[];
 }
 
 export const QuestionsTab = ({
@@ -72,7 +83,18 @@ export const QuestionsTab = ({
   setAnswerForm,
   handleSubmitAnswer,
   submitAnswer,
+  handleViewAnswers,
+  openAnswersListDialog,
+  setOpenAnswersListDialog,
+  answers,
+  answersLoading,
+  handleGradeAnswer,
+  updateAnswer,
+  studentAnswers,
 }: QuestionsTabProps) => {
+  const getStudentAnswer = (questionId: number) => {
+    return studentAnswers?.find((a) => a.questionId === questionId);
+  };
   return (
     <div className="space-y-4 pt-4">
       <div className="flex justify-between items-center">
@@ -188,6 +210,14 @@ export const QuestionsTab = ({
                         <Button
                           variant="outline"
                           size="sm"
+                          onClick={() => handleViewAnswers(question)}
+                        >
+                          <Eye className="w-4 h-4 mr-2" />
+                          Ver Respuestas
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
                           onClick={() => handleDeleteQuestion(question.id)}
                           disabled={deleteQuestionMutation.isPending}
                         >
@@ -195,41 +225,72 @@ export const QuestionsTab = ({
                         </Button>
                       </div>
                     ) : (
-                      <Dialog open={openAnswerDialog && selectedQuestion?.id === question.id} onOpenChange={setOpenAnswerDialog}>
-                        <DialogTrigger asChild>
-                          <Button size="sm" className="gap-2" onClick={() => handleAnswerQuestion(question)}>
-                            <Send className="w-4 h-4" />
-                            Responder
-                          </Button>
-                        </DialogTrigger>
-                        <DialogContent className="max-w-2xl">
-                          <DialogHeader>
-                            <DialogTitle>Responder Pregunta</DialogTitle>
-                          </DialogHeader>
-                          <form onSubmit={handleSubmitAnswer} className="space-y-4">
-                            <div>
-                              <Label htmlFor="answer">Tu Respuesta</Label>
-                              <Textarea
-                                id="answer"
-                                value={answerForm.answer}
-                                onChange={(e) => setAnswerForm({ answer: e.target.value })}
-                                placeholder="Escribe tu respuesta"
-                                rows={6}
-                              />
+                      <div className="space-y-3">
+                        {getStudentAnswer(question.id) ? (
+                          <div className="p-4 border rounded-md bg-gray-50 space-y-2">
+                            <p className="text-sm font-semibold text-gray-600 italic">Ya has respondido esta pregunta:</p>
+                            <div className="p-2 bg-white border rounded text-gray-700">
+                              {getStudentAnswer(question.id).answer}
                             </div>
-                            <Button type="submit" disabled={submitAnswer.isPending} className="w-full">
-                              {submitAnswer.isPending ? (
-                                <>
-                                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                                  Enviando...
-                                </>
-                              ) : (
-                                "Enviar Respuesta"
-                              )}
-                            </Button>
-                          </form>
-                        </DialogContent>
-                      </Dialog>
+                            {getStudentAnswer(question.id).isCorrect !== null && (
+                              <div className="mt-3 pt-3 border-t">
+                                <p className="text-sm">
+                                  <span className="font-semibold">Resultado:</span>{" "}
+                                  {getStudentAnswer(question.id).isCorrect === 1 ? (
+                                    <span className="text-green-600 font-bold">Correcto</span>
+                                  ) : (
+                                    <span className="text-red-600 font-bold">Incorrecto</span>
+                                  )}
+                                  {" - "}
+                                  {getStudentAnswer(question.id).pointsEarned} puntos
+                                </p>
+                                {getStudentAnswer(question.id).feedback && (
+                                  <p className="text-sm">
+                                    <span className="font-semibold">Retroalimentación:</span>{" "}
+                                    {getStudentAnswer(question.id).feedback}
+                                  </p>
+                                )}
+                              </div>
+                            )}
+                          </div>
+                        ) : (
+                          <Dialog open={openAnswerDialog && selectedQuestion?.id === question.id} onOpenChange={setOpenAnswerDialog}>
+                            <DialogTrigger asChild>
+                              <Button size="sm" className="gap-2" onClick={() => handleAnswerQuestion(question)}>
+                                <Send className="w-4 h-4" />
+                                Responder
+                              </Button>
+                            </DialogTrigger>
+                            <DialogContent className="max-w-2xl">
+                              <DialogHeader>
+                                <DialogTitle>Responder Pregunta</DialogTitle>
+                              </DialogHeader>
+                              <form onSubmit={handleSubmitAnswer} className="space-y-4">
+                                <div>
+                                  <Label htmlFor="answer">Tu Respuesta</Label>
+                                  <Textarea
+                                    id="answer"
+                                    value={answerForm.answer}
+                                    onChange={(e) => setAnswerForm({ answer: e.target.value })}
+                                    placeholder="Escribe tu respuesta"
+                                    rows={6}
+                                  />
+                                </div>
+                                <Button type="submit" disabled={submitAnswer.isPending} className="w-full">
+                                  {submitAnswer.isPending ? (
+                                    <>
+                                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                                      Enviando...
+                                    </>
+                                  ) : (
+                                    "Enviar Respuesta"
+                                  )}
+                                </Button>
+                              </form>
+                            </DialogContent>
+                          </Dialog>
+                        )}
+                      </div>
                     )}
                   </div>
                 </div>
@@ -244,6 +305,20 @@ export const QuestionsTab = ({
           </CardContent>
         </Card>
       )}
+
+      <Dialog open={openAnswersListDialog} onOpenChange={setOpenAnswersListDialog}>
+        <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Respuestas: {selectedQuestion?.title}</DialogTitle>
+          </DialogHeader>
+          <AnswersList
+            answers={answers}
+            loading={answersLoading}
+            onGrade={handleGradeAnswer}
+            isGrading={updateAnswer.isPending}
+          />
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

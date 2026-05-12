@@ -7,6 +7,7 @@ export function useAnswerMutations(courseId: number) {
   const submitAnswer = trpc.answers.submit.useMutation({
     onSuccess: () => {
       utils.questions.list.invalidate({ courseId });
+      utils.answers.getByStudent.invalidate();
       toast.success("Respuesta enviada exitosamente");
     },
     onError: (error: any) => {
@@ -14,7 +15,18 @@ export function useAnswerMutations(courseId: number) {
     },
   });
 
+  const updateAnswer = trpc.answers.update.useMutation({
+    onSuccess: () => {
+      utils.questions.getAnswers.invalidate();
+      toast.success("Calificación guardada");
+    },
+    onError: (error: any) => {
+      toast.error(error.message || "Error al guardar calificación");
+    },
+  });
+
   return {
     submitAnswer,
+    updateAnswer,
   };
 }

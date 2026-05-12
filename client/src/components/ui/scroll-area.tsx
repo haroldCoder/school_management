@@ -52,5 +52,26 @@ function ScrollBar({
     </ScrollAreaPrimitive.ScrollAreaScrollbar>
   );
 }
+const ScrollAreaScrollbar = React.forwardRef<
+  React.ElementRef<typeof ScrollAreaPrimitive.ScrollAreaScrollbar>,
+  React.ComponentPropsWithoutRef<typeof ScrollAreaPrimitive.ScrollAreaScrollbar>
+>(({ className, orientation = "vertical", ...props }, ref) => (
+  <ScrollAreaPrimitive.ScrollAreaScrollbar
+    ref={ref}
+    orientation={orientation}
+    className={cn(
+      "flex touch-none select-none transition-colors rounded-full bg-blue-600",
+      orientation === "vertical" &&
+      "h-full w-1 border-l border-l-transparent",
+      orientation === "horizontal" &&
+      "h-2 flex-col border-t border-t-transparent p-[1px]",
+      className
+    )}
+    {...props}
+  >
+    <ScrollAreaPrimitive.ScrollAreaThumb className="relative flex-1 rounded-full bg-gray-300" />
 
-export { ScrollArea, ScrollBar };
+  </ScrollAreaPrimitive.ScrollAreaScrollbar>
+));
+
+export { ScrollArea, ScrollBar, ScrollAreaScrollbar };
