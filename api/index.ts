@@ -13,10 +13,10 @@
 import "dotenv/config";
 import express, { type Request, type Response } from "express";
 import { createExpressMiddleware } from "@trpc/server/adapters/express";
-import { registerOAuthRoutes } from "../server/_core/oauth";
-import { registerStorageProxy } from "../server/_core/storageProxy";
-import { appRouter } from "../server/routers";
-import { createContext } from "../server/_core/context";
+import { registerOAuthRoutes } from "../server/_core/oauth.js";
+import { registerStorageProxy } from "../server/_core/storageProxy.js";
+import { appRouter } from "../server/routers.js";
+import { createContext } from "../server/_core/context.js";
 
 const app = express();
 
@@ -36,7 +36,7 @@ app.use(
 );
 
 // Ruta base de salud
-app.get("/api/health", (_req: Request, res: Response) => {
+app.get("/api/health", (_req: any, res: any) => {
   res.json({ status: "ok", timestamp: new Date().toISOString() });
 });
 

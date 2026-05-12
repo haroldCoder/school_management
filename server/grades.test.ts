@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import type { TrpcContext } from "./_core/context";
+import type { TrpcContext } from "./_core/context.js";
 
 function createAdminContext(): TrpcContext {
   return {
